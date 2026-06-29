@@ -1,0 +1,1 @@
+"""Campus scenario adapter."""
