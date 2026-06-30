@@ -29,8 +29,12 @@ data/raw/
 data/interim/
 data/processed/
 
+# Local reference repositories
+AgentSociety/
+matsim-libs/
+mesa/
+
 # OS and editor noise
 .DS_Store
 .idea/
 .vscode/
-
