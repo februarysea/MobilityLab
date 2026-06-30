@@ -4,6 +4,10 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Added an agent runtime MVP with `RuntimeAgent`, structured agent plans and
+  decisions, replaceable behavior models, optional cognition state, and an
+  `AgentSystem` that connects observations, decisions, movement requests, and
+  event traces.
 - Added an environment runtime MVP with `RuntimeWorld`, deterministic routing
   contracts, a movement kernel, controlled observations, and simulation
   installation support.
