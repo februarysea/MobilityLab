@@ -4,6 +4,9 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Added scenario spatial-layer contracts for coordinate references, semantic
+  areas, optional grid overlays, static grid cells, and spatial index
+  declarations.
 - Reoriented the initial project testbeds from campus-specific scenarios to
   public U.S. data ABM and mobility experiments, with an ADR documenting the
   pivot.

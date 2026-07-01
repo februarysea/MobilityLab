@@ -20,6 +20,7 @@ from campussociety.scenario._utils import (
 )
 from campussociety.scenario.errors import ScenarioValidationError
 from campussociety.scenario.population import PopulationSpec
+from campussociety.scenario.spatial import SpatialLayersSpec
 from campussociety.scenario.variants import ScenarioVariantSpec, baseline_variant
 from campussociety.scenario.world import (
     FacilitiesSpec,
@@ -150,6 +151,7 @@ class PreparedScenario:
     network: NetworkSpec = field(default_factory=NetworkSpec)
     facilities: FacilitiesSpec = field(default_factory=FacilitiesSpec)
     mobility_supply: MobilitySupplySpec = field(default_factory=MobilitySupplySpec)
+    spatial_layers: SpatialLayersSpec = field(default_factory=SpatialLayersSpec)
     variant: ScenarioVariantSpec = field(default_factory=baseline_variant)
     metadata: Mapping[str, JsonValue] = field(default_factory=dict)
     initial_entities: tuple[Entity, ...] = ()
@@ -191,6 +193,10 @@ class PreparedScenario:
             "network_links": self.network.link_count,
             "facility_count": self.facilities.size,
             "mobility_modes": self.mobility_supply.mode_count,
+            "spatial_areas": self.spatial_layers.area_count,
+            "grid_layers": self.spatial_layers.grid_layer_count,
+            "spatial_indexes": self.spatial_layers.spatial_index_count,
+            "spatial_layers": self.spatial_layers.to_record(),
             "spec": self.spec.to_record(),
             "variant": self.variant.to_record(),
             "metadata": copy_json_mapping(self.metadata),

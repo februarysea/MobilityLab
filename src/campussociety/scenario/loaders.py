@@ -57,6 +57,7 @@ class InMemoryScenarioLoader:
                 network=scenario.network,
                 facilities=scenario.facilities,
                 mobility_supply=scenario.mobility_supply,
+                spatial_layers=scenario.spatial_layers,
                 variant=variant,
                 metadata=scenario.metadata,
                 initial_entities=scenario.initial_entities,

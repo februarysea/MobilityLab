@@ -8,9 +8,15 @@ from campussociety.core import EntityId, Simulation
 from campussociety.scenario import (
     ActivitySpec,
     AgentSpec,
+    AreaSpec,
+    BoundingBox,
+    CoordinateReference,
     DataSource,
     FacilitiesSpec,
     FacilitySpec,
+    GridCellSpec,
+    GridLayerSpec,
+    GridLayerType,
     InMemoryScenarioLoader,
     MobilityModeSpec,
     MobilitySupplySpec,
@@ -18,6 +24,7 @@ from campussociety.scenario import (
     NetworkNodeSpec,
     NetworkSpec,
     PlanSpec,
+    PointSpec,
     PopulationSpec,
     PreparedScenario,
     ScenarioConfig,
@@ -26,6 +33,9 @@ from campussociety.scenario import (
     ScenarioValidationError,
     ScenarioVariantSpec,
     ScheduledScenarioEvent,
+    SpatialIndexKind,
+    SpatialIndexSpec,
+    SpatialLayersSpec,
 )
 
 
@@ -106,6 +116,54 @@ def build_prepared_scenario() -> PreparedScenario:
     mobility_supply = MobilitySupplySpec(
         modes=(MobilityModeSpec(mode_id="walk", mode_type="active"),),
     )
+    spatial_layers = SpatialLayersSpec(
+        coordinate_reference=CoordinateReference(
+            crs_id="local-planar",
+            units="meters",
+        ),
+        extent=BoundingBox(min_x=0.0, min_y=0.0, max_x=1000.0, max_y=1000.0),
+        areas=(
+            AreaSpec(
+                area_id="area:residential",
+                area_type="residential",
+                name="Residential area",
+                centroid=PointSpec(100.0, 100.0),
+            ),
+            AreaSpec(
+                area_id="area:employment",
+                area_type="employment",
+                name="Employment area",
+                centroid=PointSpec(800.0, 800.0),
+            ),
+        ),
+        grid_layers=(
+            GridLayerSpec(
+                layer_id="grid:heatmap",
+                grid_type=GridLayerType.REGULAR_SQUARE,
+                extent=BoundingBox(min_x=0.0, min_y=0.0, max_x=1000.0, max_y=1000.0),
+                cell_size_meters=250.0,
+                topology="moore",
+                cells=(
+                    GridCellSpec(
+                        cell_id="grid:heatmap:0:0",
+                        row=0,
+                        column=0,
+                        area_id="area:residential",
+                        centroid=PointSpec(125.0, 125.0),
+                    ),
+                ),
+                initial_property_layers={"walkability": {"default": 1.0}},
+            ),
+        ),
+        spatial_indexes=(
+            SpatialIndexSpec(
+                index_id="idx:areas",
+                index_kind=SpatialIndexKind.STRTREE,
+                target_id="areas",
+                target_kinds=("area", "cell"),
+            ),
+        ),
+    )
 
     return PreparedScenario(
         spec=spec,
@@ -113,6 +171,7 @@ def build_prepared_scenario() -> PreparedScenario:
         network=network,
         facilities=facilities,
         mobility_supply=mobility_supply,
+        spatial_layers=spatial_layers,
         variant=variant,
         metadata={"source": "unit-test"},
         initial_entities=(
@@ -155,6 +214,9 @@ def test_prepared_scenario_initializer_installs_into_core_simulation() -> None:
     assert initialized.entities["scenario:toy_commute_day"]["population_size"] == 1
     assert initialized.entities["scenario:toy_commute_day"]["network_nodes"] == 2
     assert initialized.entities["scenario:toy_commute_day"]["facility_count"] == 1
+    assert initialized.entities["scenario:toy_commute_day"]["spatial_areas"] == 2
+    assert initialized.entities["scenario:toy_commute_day"]["grid_layers"] == 1
+    assert initialized.entities["scenario:toy_commute_day"]["spatial_indexes"] == 1
     assert initialized.entities["scenario-loader:marker"]["ready"] is True
 
     completed = simulation.run()
@@ -216,6 +278,51 @@ def test_scenario_specs_validate_duplicates_and_network_endpoints() -> None:
                     link_id="bad-link",
                     from_node_id="a",
                     to_node_id="missing",
+                ),
+            ),
+        )
+
+
+def test_spatial_layers_validate_static_spatial_declarations() -> None:
+    with pytest.raises(ScenarioValidationError, match="max_x"):
+        BoundingBox(min_x=10.0, min_y=0.0, max_x=1.0, max_y=1.0)
+
+    with pytest.raises(ScenarioValidationError, match="areas contains duplicate"):
+        SpatialLayersSpec(
+            areas=(
+                AreaSpec(area_id="area:1", area_type="district"),
+                AreaSpec(area_id="area:1", area_type="district"),
+            ),
+        )
+
+    with pytest.raises(ScenarioValidationError, match="unknown parent ids"):
+        SpatialLayersSpec(
+            areas=(
+                AreaSpec(
+                    area_id="area:child",
+                    area_type="district",
+                    parent_area_id="area:missing",
+                ),
+            ),
+        )
+
+    with pytest.raises(ScenarioValidationError, match="cells contains duplicate"):
+        GridLayerSpec(
+            layer_id="grid:duplicate-cells",
+            grid_type=GridLayerType.CUSTOM,
+            cells=(
+                GridCellSpec(cell_id="cell:1"),
+                GridCellSpec(cell_id="cell:1"),
+            ),
+        )
+
+    with pytest.raises(ScenarioValidationError, match="unknown targets"):
+        SpatialLayersSpec(
+            spatial_indexes=(
+                SpatialIndexSpec(
+                    index_id="idx:missing",
+                    index_kind=SpatialIndexKind.QUADTREE,
+                    target_id="grid:missing",
                 ),
             ),
         )
