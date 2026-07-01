@@ -4,6 +4,9 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Added an experiment run orchestration MVP with single-run configs,
+  simulation assembly, run listeners, event trace export, built-in metrics,
+  replay artifacts, run artifacts, and structured run results.
 - Added an agent runtime MVP with `RuntimeAgent`, structured agent plans and
   decisions, replaceable behavior models, optional cognition state, and an
   `AgentSystem` that connects observations, decisions, movement requests, and
