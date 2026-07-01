@@ -4,6 +4,8 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Renamed the project and Python package from CampusSociety/campussociety to
+  MobilityLab/mobilitylab.
 - Updated the project guide to clarify the mobility-first transport scope,
   spatial-overlay boundaries, current MVP capability boundary, and transport
   benchmark progression.

@@ -5,14 +5,14 @@ import { defineConfig, type Plugin } from "vite";
 
 function runArtifactsPlugin(): Plugin {
   return {
-    name: "campussociety-run-artifacts",
+    name: "mobilitylab-run-artifacts",
     configureServer(server) {
-      const configuredRunDir = process.env.CAMPUSSOCIETY_RUN_DIR;
+      const configuredRunDir = process.env.MOBILITYLAB_RUN_DIR;
       server.middlewares.use("/run-artifacts", (request, response, next) => {
         if (!configuredRunDir) {
           response.statusCode = 404;
           response.setHeader("Content-Type", "text/plain; charset=utf-8");
-          response.end("CAMPUSSOCIETY_RUN_DIR is not set");
+          response.end("MOBILITYLAB_RUN_DIR is not set");
           return;
         }
         const root = path.resolve(configuredRunDir);

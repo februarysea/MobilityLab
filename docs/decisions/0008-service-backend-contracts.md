@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety needs replaceable external capabilities without coupling provider
+MobilityLab needs replaceable external capabilities without coupling provider
 details to core simulation semantics. The existing layers already define
 scenario loading, environment routing and movement, agent behavior,
 experiments, and visualization artifacts. Services should support these layers

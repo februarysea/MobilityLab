@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety now has a deterministic simulation core and a scenario system that
+MobilityLab now has a deterministic simulation core and a scenario system that
 loads static world declarations. The next layer needs to turn a prepared
 scenario into a runtime world that agents can observe and move through.
 

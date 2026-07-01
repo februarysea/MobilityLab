@@ -32,5 +32,5 @@
     }
   ],
   "run_id": "sample-run",
-  "schema": "campussociety.visualization.metric_table.v1"
+  "schema": "mobilitylab.visualization.metric_table.v1"
 }

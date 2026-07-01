@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from campussociety.core.clock import (
+from mobilitylab.core.clock import (
     SECONDS_PER_DAY,
     SECONDS_PER_HOUR,
     SECONDS_PER_MINUTE,
     Clock,
 )
-from campussociety.core.scheduler import Scheduler
+from mobilitylab.core.scheduler import Scheduler
 
 
 def test_core_time_constants_use_integer_seconds() -> None:

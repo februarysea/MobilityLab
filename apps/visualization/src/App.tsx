@@ -42,7 +42,7 @@ export default function App() {
       <StatusScreen
         title="Replay unavailable"
         detail={state.message}
-        secondary="Set CAMPUSSOCIETY_RUN_DIR to a run directory with visualization_manifest.json, or pass ?manifest= to an HTTP-served manifest URL."
+        secondary="Set MOBILITYLAB_RUN_DIR to a run directory with visualization_manifest.json, or pass ?manifest= to an HTTP-served manifest URL."
       />
     );
   }

@@ -22,7 +22,7 @@ export default function ReplayDashboard({ data }: { data: LoadedVisualization })
     <main className="app-shell">
       <header className="topbar">
         <div>
-          <h1>CampusSociety Replay</h1>
+          <h1>MobilityLab Replay</h1>
           <p>
             {data.manifest.scenario_id} · {data.manifest.variant_id} · run{" "}
             {data.manifest.run_id}

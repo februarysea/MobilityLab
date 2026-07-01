@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety needs to support traditional agent-based simulation,
+MobilityLab needs to support traditional agent-based simulation,
 cognition-backed behavior, and hybrid behavior without making LLM provider
 calls part of the simulation core. The project also needs to keep policy and
 intervention logic distinct from agent decision mechanisms.

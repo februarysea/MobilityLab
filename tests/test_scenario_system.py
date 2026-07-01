@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from campussociety.core import EntityId, Simulation
-from campussociety.scenario import (
+from mobilitylab.core import EntityId, Simulation
+from mobilitylab.scenario import (
     ActivitySpec,
     AgentSpec,
     AreaSpec,

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety now has MVP implementations for simulation core, scenarios,
+MobilityLab now has MVP implementations for simulation core, scenarios,
 environment runtime, and agents. The next layer needs to run those components
 as reproducible experiments without moving scenario data ownership, movement
 semantics, or agent behavior into an experiment script.

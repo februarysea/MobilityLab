@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety needs spatial declarations for campus-scale and public-data ABM
+MobilityLab needs spatial declarations for campus-scale and public-data ABM
 scenarios. The project must support semantic areas, facilities, networks, and
 optional grid overlays without moving mutable runtime state into the scenario
 layer.

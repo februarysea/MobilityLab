@@ -5,13 +5,13 @@
         "coordinates": [2, 0],
         "type": "Point"
       },
-      "id": "facility:classroom-a",
+      "id": "facility:workplace-a",
       "properties": {
-        "access_node_id": "classroom",
+        "access_node_id": "workplace",
         "attributes": {},
         "capacity": null,
-        "facility_id": "classroom-a",
-        "facility_type": "classroom",
+        "facility_id": "workplace-a",
+        "facility_type": "workplace",
         "feature_type": "facility",
         "state": {
           "occupancy": 0,
@@ -23,7 +23,7 @@
   ],
   "metadata": {
     "facility_count": 1,
-    "schema": "campussociety.visualization.facilities_geojson.v1"
+    "schema": "mobilitylab.visualization.facilities_geojson.v1"
   },
   "type": "FeatureCollection"
 }

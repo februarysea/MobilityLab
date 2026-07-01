@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety needs a scenario layer that defines what world is simulated
+MobilityLab needs a scenario layer that defines what world is simulated
 without taking ownership of experiment execution, metrics, or framework core
 runtime semantics. The first adapter is campus-scale, but the contracts should
 remain useful for city-scale scenarios and future data loaders.

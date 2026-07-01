@@ -3,15 +3,15 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-CORE_ROOT = Path(__file__).parents[1] / "src" / "campussociety" / "core"
+CORE_ROOT = Path(__file__).parents[1] / "src" / "mobilitylab" / "core"
 FORBIDDEN_IMPORT_PREFIXES = (
-    "campussociety.adapters",
-    "campussociety.agents",
-    "campussociety.environment",
-    "campussociety.experiments",
-    "campussociety.scenario",
-    "campussociety.services",
-    "campussociety.visualization",
+    "mobilitylab.adapters",
+    "mobilitylab.agents",
+    "mobilitylab.environment",
+    "mobilitylab.experiments",
+    "mobilitylab.scenario",
+    "mobilitylab.services",
+    "mobilitylab.visualization",
 )
 
 

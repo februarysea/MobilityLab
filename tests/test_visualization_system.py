@@ -3,13 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from campussociety.experiments import (
+from mobilitylab.experiments import (
     ExperimentRunner,
     OutputConfig,
     RunConfig,
     SimulationAssembler,
 )
-from campussociety.scenario import (
+from mobilitylab.scenario import (
     ActivitySpec,
     AgentSpec,
     FacilitiesSpec,
@@ -25,7 +25,7 @@ from campussociety.scenario import (
     PreparedScenario,
     ScenarioSpec,
 )
-from campussociety.visualization import (
+from mobilitylab.visualization import (
     DatasetCapability,
     ReplayTimeline,
     RunArtifactReader,

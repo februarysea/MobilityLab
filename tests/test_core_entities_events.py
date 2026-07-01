@@ -4,13 +4,13 @@ from dataclasses import dataclass
 
 import pytest
 
-from campussociety.core.entities import (
+from mobilitylab.core.entities import (
     DuplicateEntityError,
     EntityId,
     EntityRegistry,
     State,
 )
-from campussociety.core.events import Event, EventBus
+from mobilitylab.core.events import Event, EventBus
 
 
 @dataclass

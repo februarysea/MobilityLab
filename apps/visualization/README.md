@@ -1,6 +1,6 @@
-# CampusSociety Visualization Viewer
+# MobilityLab Visualization Viewer
 
-Thin React/Vite/deck.gl viewer for CampusSociety visualization artifacts.
+Thin React/Vite/deck.gl viewer for MobilityLab visualization artifacts.
 
 ## Development
 
@@ -20,11 +20,11 @@ Start against a completed run directory that already contains
 `visualization_manifest.json`:
 
 ```bash
-CAMPUSSOCIETY_RUN_DIR=/path/to/run npm --prefix apps/visualization run dev
+MOBILITYLAB_RUN_DIR=/path/to/run npm --prefix apps/visualization run dev
 ```
 
 The viewer reads `/run-artifacts/visualization_manifest.json` when
-`CAMPUSSOCIETY_RUN_DIR` is set. Otherwise it falls back to the bundled sample.
+`MOBILITYLAB_RUN_DIR` is set. Otherwise it falls back to the bundled sample.
 
 ## Build
 

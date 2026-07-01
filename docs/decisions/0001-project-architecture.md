@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety needs to support traditional ABM policies, LLM-driven policies,
+MobilityLab needs to support traditional ABM policies, LLM-driven policies,
 and hybrid policies without coupling provider calls to the simulation runtime.
 The first scenario is campus-scale, but the framework should keep city-scale
 extension points open from the start.

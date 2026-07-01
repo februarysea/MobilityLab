@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety agents may use lightweight rule-based behavior, discrete-choice
+MobilityLab agents may use lightweight rule-based behavior, discrete-choice
 models, cognition-backed behavior, or hybrid behavior. Cognition-backed
 decisions and some future choice models can be expensive enough to require
 concurrent execution.

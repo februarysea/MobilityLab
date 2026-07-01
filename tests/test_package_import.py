@@ -1,4 +1,4 @@
-from campussociety import __version__
+from mobilitylab import __version__
 
 
 def test_package_imports() -> None:

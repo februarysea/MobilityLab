@@ -3,12 +3,10 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-VISUALIZATION_ROOT = (
-    Path(__file__).parents[1] / "src" / "campussociety" / "visualization"
-)
+VISUALIZATION_ROOT = Path(__file__).parents[1] / "src" / "mobilitylab" / "visualization"
 FORBIDDEN_IMPORT_PREFIXES = (
-    "campussociety.adapters",
-    "campussociety.services",
+    "mobilitylab.adapters",
+    "mobilitylab.services",
 )
 
 

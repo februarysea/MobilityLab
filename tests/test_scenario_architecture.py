@@ -3,12 +3,12 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-SCENARIO_ROOT = Path(__file__).parents[1] / "src" / "campussociety" / "scenario"
+SCENARIO_ROOT = Path(__file__).parents[1] / "src" / "mobilitylab" / "scenario"
 FORBIDDEN_IMPORT_PREFIXES = (
-    "campussociety.adapters",
-    "campussociety.experiments",
-    "campussociety.services",
-    "campussociety.visualization",
+    "mobilitylab.adapters",
+    "mobilitylab.experiments",
+    "mobilitylab.services",
+    "mobilitylab.visualization",
 )
 
 

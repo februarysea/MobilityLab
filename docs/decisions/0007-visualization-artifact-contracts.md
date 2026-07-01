@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-CampusSociety needs replay, map, metrics, and trace views without allowing user
+MobilityLab needs replay, map, metrics, and trace views without allowing user
 interfaces to redefine simulation semantics or mutate runtime state. The
 experiment layer already writes run artifacts such as event traces, metrics,
 snapshots, and replay timelines.

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import cast
 
-from campussociety.agents import (
+from mobilitylab.agents import (
     AgentDecisionRequest,
     AgentDecisionResult,
     AgentLifecycleStatus,
@@ -16,9 +16,9 @@ from campussociety.agents import (
     RuleBasedBehavior,
     SerialDecisionExecutor,
 )
-from campussociety.core import EntityId, Simulation, State
-from campussociety.environment import EnvironmentBuilder, LocationRef
-from campussociety.scenario import (
+from mobilitylab.core import EntityId, Simulation, State
+from mobilitylab.environment import EnvironmentBuilder, LocationRef
+from mobilitylab.scenario import (
     ActivitySpec,
     AgentSpec,
     FacilitiesSpec,

@@ -1,7 +1,7 @@
-# CampusSociety
+# MobilityLab
 
-CampusSociety is a simulation framework for traditional, agent-based,
-LLM-driven, and hybrid mobility and transportation simulation.
+MobilityLab is an experimental platform for traditional, agent-based,
+LLM-enabled, and hybrid mobility and transportation simulation.
 
 The initial implementation target is a mobility-first simulation foundation,
 with public U.S. datasets planned as later scenario inputs. The package

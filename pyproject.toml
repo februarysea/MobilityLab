@@ -3,9 +3,9 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "campussociety"
+name = "mobilitylab"
 version = "0.1.0"
-description = "Simulation framework for LLM-driven and traditional agent-based mobility simulation."
+description = "Experimental platform for traditional, agent-based, LLM-enabled, and hybrid mobility simulation."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
@@ -20,7 +20,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/campussociety"]
+packages = ["src/mobilitylab"]
 
 [tool.ruff]
 line-length = 88
@@ -46,4 +46,3 @@ addopts = [
     "--strict-config",
     "--strict-markers",
 ]
-

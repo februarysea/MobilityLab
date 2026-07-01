@@ -1,9 +1,9 @@
-# CampusSociety Project Guide
+# MobilityLab Project Guide
 
 ## Project Scope
 
-CampusSociety is a simulation framework for traditional, agent-based,
-LLM-driven, and hybrid mobility and transportation simulation.
+MobilityLab is an experimental platform for traditional, agent-based,
+LLM-enabled, and hybrid mobility and transportation simulation.
 
 The first implementation target is a mobility-first simulation foundation:
 network-route movement, agent trip/activity execution, spatial context,
@@ -352,7 +352,7 @@ Rules:
 ## Suggested Package Structure
 
 ```text
-campussociety/
+mobilitylab/
   core/
     clock.py
     scheduler.py

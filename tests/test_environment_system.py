@@ -4,8 +4,8 @@ from typing import cast
 
 import pytest
 
-from campussociety.core import EntityId, RunContext, Simulation, State
-from campussociety.environment import (
+from mobilitylab.core import EntityId, RunContext, Simulation, State
+from mobilitylab.environment import (
     EnvironmentBuilder,
     LocationRef,
     MovementIntent,
@@ -14,7 +14,7 @@ from campussociety.environment import (
     RouteRequest,
     SimpleNetworkRouter,
 )
-from campussociety.scenario import (
+from mobilitylab.scenario import (
     AreaSpec,
     BoundingBox,
     CoordinateReference,

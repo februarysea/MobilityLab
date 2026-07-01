@@ -13,7 +13,7 @@
           "recommended_layer": "network"
         },
         "path": "datasets/network.geojson",
-        "schema": "campussociety.visualization.dataset.v1",
+        "schema": "mobilitylab.visualization.dataset.v1",
         "time_key": null,
         "title": "Network Geometry"
       },
@@ -29,7 +29,7 @@
           "recommended_layer": "facilities"
         },
         "path": "datasets/facilities.geojson",
-        "schema": "campussociety.visualization.dataset.v1",
+        "schema": "mobilitylab.visualization.dataset.v1",
         "time_key": null,
         "title": "Facility Points"
       },
@@ -54,7 +54,7 @@
           "recommended_panel": "timeline"
         },
         "path": "datasets/replay_frames.jsonl",
-        "schema": "campussociety.visualization.dataset.v1",
+        "schema": "mobilitylab.visualization.dataset.v1",
         "time_key": "time",
         "title": "Replay Frames"
       },
@@ -70,7 +70,7 @@
           "recommended_panel": "metrics"
         },
         "path": "datasets/metrics.json",
-        "schema": "campussociety.visualization.dataset.v1",
+        "schema": "mobilitylab.visualization.dataset.v1",
         "time_key": null,
         "title": "Run Metrics"
       },
@@ -86,12 +86,12 @@
           "recommended_panel": "events"
         },
         "path": "datasets/trace_events.jsonl",
-        "schema": "campussociety.visualization.dataset.v1",
+        "schema": "mobilitylab.visualization.dataset.v1",
         "time_key": "time",
         "title": "Trace Events"
       }
     ],
-    "schema": "campussociety.visualization.dataset_catalog.v1"
+    "schema": "mobilitylab.visualization.dataset_catalog.v1"
   },
   "dashboards": [
     {
@@ -99,7 +99,7 @@
       "layers": [],
       "metadata": {},
       "panels": [],
-      "schema": "campussociety.visualization.dashboard.v1",
+      "schema": "mobilitylab.visualization.dashboard.v1",
       "title": "Replay Dashboard"
     }
   ],
@@ -109,9 +109,9 @@
     "frame_count": 4
   },
   "run_id": "sample-run",
-  "scenario_id": "sample-campus",
+  "scenario_id": "sample-mobility",
   "scenario_version": "2026.07",
-  "schema": "campussociety.visualization.manifest.v1",
+  "schema": "mobilitylab.visualization.manifest.v1",
   "source_artifacts": {},
   "variant_id": "baseline"
 }

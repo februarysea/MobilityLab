@@ -1,6 +1,6 @@
-{"payload":{"scenario_id":"sample-campus"},"sequence":1,"time":0,"topic":"scenario.initialized"}
+{"payload":{"scenario_id":"sample-mobility"},"sequence":1,"time":0,"topic":"scenario.initialized"}
 {"payload":{"network_links":1,"network_nodes":2},"sequence":2,"time":0,"topic":"environment.initialized"}
 {"payload":{"agent_count":1},"sequence":3,"time":0,"topic":"agents.initialized"}
-{"payload":{"agent_id":"student-1","mode":"walk","movement_id":"movement:student-1:1"},"sequence":4,"time":5,"topic":"movement.started"}
-{"payload":{"agent_id":"student-1","movement_id":"movement:student-1:1","travel_time_seconds":2},"sequence":5,"time":7,"topic":"movement.arrived"}
-{"payload":{"activity_id":"class-1","agent_id":"student-1"},"sequence":6,"time":8,"topic":"agent.activity.started"}
+{"payload":{"agent_id":"commuter-1","mode":"walk","movement_id":"movement:commuter-1:1"},"sequence":4,"time":5,"topic":"movement.started"}
+{"payload":{"agent_id":"commuter-1","movement_id":"movement:commuter-1:1","travel_time_seconds":2},"sequence":5,"time":7,"topic":"movement.arrived"}
+{"payload":{"activity_id":"work-1","agent_id":"commuter-1"},"sequence":6,"time":8,"topic":"agent.activity.started"}

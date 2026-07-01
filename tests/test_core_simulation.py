@@ -5,7 +5,7 @@ from typing import cast
 
 import pytest
 
-from campussociety.core import (
+from mobilitylab.core import (
     EntityId,
     RunContext,
     Simulation,

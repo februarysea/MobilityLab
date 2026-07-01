@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from campussociety.environment import (
+from mobilitylab.environment import (
     EnvironmentBuilder,
     LocationRef,
     Route,
     RouteRequest,
     SimpleNetworkRouter,
 )
-from campussociety.scenario import (
+from mobilitylab.scenario import (
     FacilitiesSpec,
     FacilitySpec,
     MobilityModeSpec,
@@ -18,13 +18,13 @@ from campussociety.scenario import (
     PreparedScenario,
     ScenarioSpec,
 )
-from campussociety.services import (
+from mobilitylab.services import (
     LLMServiceConfig,
     RoutingServiceConfig,
     ServiceConfig,
     build_service_bundle,
 )
-from campussociety.services.llm import (
+from mobilitylab.services.llm import (
     CachedLLMClient,
     DeterministicLLMClient,
     InMemoryLLMCache,
@@ -33,7 +33,7 @@ from campussociety.services.llm import (
     PromptRenderer,
     PromptTemplate,
 )
-from campussociety.services.routing import CachedRoutingService
+from mobilitylab.services.routing import CachedRoutingService
 
 
 def build_services_scenario() -> PreparedScenario:
