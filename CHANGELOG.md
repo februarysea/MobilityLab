@@ -8,6 +8,9 @@ All notable project changes are recorded here.
   decisions, replaceable behavior models, optional cognition state, and an
   `AgentSystem` that connects observations, decisions, movement requests, and
   event traces.
+- Added deterministic batched agent activation with serial and threaded
+  decision executor contracts so agent decisions can be parallelized before
+  ordered runtime application.
 - Added an environment runtime MVP with `RuntimeWorld`, deterministic routing
   contracts, a movement kernel, controlled observations, and simulation
   installation support.

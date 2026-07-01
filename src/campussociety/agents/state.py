@@ -63,3 +63,16 @@ class AgentState:
             "satisfaction": self.satisfaction,
             "attributes": copy_json_mapping(self.attributes),
         }
+
+    def copy(self) -> AgentState:
+        return AgentState(
+            lifecycle_status=self.lifecycle_status,
+            current_plan_element_index=self.current_plan_element_index,
+            current_activity_id=self.current_activity_id,
+            current_activity_end_time=self.current_activity_end_time,
+            current_trip_id=self.current_trip_id,
+            last_decision_time=self.last_decision_time,
+            fatigue=self.fatigue,
+            satisfaction=self.satisfaction,
+            attributes=self.attributes,
+        )

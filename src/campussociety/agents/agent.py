@@ -25,7 +25,6 @@ class RuntimeAgent:
     cognition_state: CognitiveState | None = None
 
     def decide(self, context: DecisionContext) -> AgentDecision:
-        self.state.last_decision_time = context.time
         return self.behavior_model.decide(context)
 
     def snapshot_state(self) -> State:

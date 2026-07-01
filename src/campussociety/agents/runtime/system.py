@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
+from hashlib import sha256
+from random import Random
 from typing import TypeAlias, cast
 
 from campussociety.agents.agent import RuntimeAgent
@@ -18,6 +20,11 @@ from campussociety.agents.decisions import (
 )
 from campussociety.agents.errors import AgentDecisionError
 from campussociety.agents.runtime.agentset import AgentSet
+from campussociety.agents.runtime.execution import (
+    AgentDecisionRequest,
+    DecisionExecutor,
+    SerialDecisionExecutor,
+)
 from campussociety.agents.state import AgentLifecycleStatus
 from campussociety.core.entities import EntityId, JsonValue, State
 from campussociety.core.events import Event
@@ -39,10 +46,21 @@ class AgentSystem:
     environment: Environment
     agents: AgentSet
     initial_locations: Mapping[EntityId, LocationRef] = field(default_factory=dict)
+    decision_executor: DecisionExecutor = field(default_factory=SerialDecisionExecutor)
     agent_system_id: EntityId = DEFAULT_AGENT_SYSTEM_ID
     initial_decision_delay_seconds: int = 0
     _context: RunContext | None = field(default=None, init=False, repr=False)
-    _pending_activations: dict[EntityId, ScheduledTask] = field(
+    _pending_activation_times: dict[EntityId, int] = field(
+        default_factory=dict,
+        init=False,
+        repr=False,
+    )
+    _activation_agents: dict[int, set[EntityId]] = field(
+        default_factory=dict,
+        init=False,
+        repr=False,
+    )
+    _activation_tasks: dict[int, ScheduledTask] = field(
         default_factory=dict,
         init=False,
         repr=False,
@@ -86,53 +104,133 @@ class AgentSystem:
             context.event_bus.subscribe("movement.arrived", self._on_movement_arrived)
             context.event_bus.subscribe("movement.failed", self._on_movement_failed)
             self._subscribed = True
-        for agent in self.agents.values():
-            self._schedule_activation(
-                agent.id,
-                context,
-                time=context.clock.time + self.initial_decision_delay_seconds,
-            )
+        self._schedule_activations(
+            tuple(agent.id for agent in self.agents.values()),
+            context,
+            time=context.clock.time + self.initial_decision_delay_seconds,
+        )
         context.emit(
             "agents.initialized",
             {
                 "agent_system_id": str(self.id),
                 "agent_count": len(self.agents),
+                "decision_executor_id": self.decision_executor.executor_id,
             },
             source=self.id if register_entity else None,
         )
 
     def activate_agent(self, agent_id: EntityId, context: RunContext) -> AgentDecision:
-        agent = self.agents.get(agent_id)
-        if agent.state.lifecycle_status in {
-            AgentLifecycleStatus.COMPLETED,
-            AgentLifecycleStatus.FAILED,
-        }:
-            inactive_decision = NoOpDecision(
-                agent_id=agent_id,
-                reason="agent is not active",
-            )
-            self._emit_decision(inactive_decision, context, agent=agent)
-            return inactive_decision
+        return self.activate_agents((agent_id,), context)[0]
 
+    def activate_agents(
+        self,
+        agent_ids: tuple[EntityId, ...],
+        context: RunContext,
+    ) -> tuple[AgentDecision, ...]:
+        ordered_agent_ids = tuple(sorted(set(agent_ids), key=str))
+        if not ordered_agent_ids:
+            return ()
+
+        requests: list[AgentDecisionRequest] = []
+        immediate_decisions: list[AgentDecision] = []
+        agents_by_id: dict[EntityId, RuntimeAgent] = {}
+        context.emit(
+            "agents.activation.batch.started",
+            {
+                "agent_system_id": str(self.id),
+                "agent_ids": [str(agent_id) for agent_id in ordered_agent_ids],
+                "decision_executor_id": self.decision_executor.executor_id,
+            },
+            source=self.id,
+        )
+
+        for sequence, agent_id in enumerate(ordered_agent_ids):
+            agent = self.agents.get(agent_id)
+            agents_by_id[agent_id] = agent
+            if agent.state.lifecycle_status in {
+                AgentLifecycleStatus.COMPLETED,
+                AgentLifecycleStatus.FAILED,
+            }:
+                inactive_decision = NoOpDecision(
+                    agent_id=agent_id,
+                    reason="agent is not active",
+                )
+                immediate_decisions.append(inactive_decision)
+                continue
+
+            requests.append(
+                AgentDecisionRequest(
+                    sequence=sequence,
+                    agent=agent,
+                    context=self._decision_context_for_agent(agent, context),
+                )
+            )
+
+        results = self.decision_executor.decide(requests)
+        if len(results) != len(requests):
+            msg = (
+                "decision executor returned unexpected result count: "
+                f"{len(results)} != {len(requests)}"
+            )
+            raise AgentDecisionError(msg)
+        decisions_by_sequence = {result.sequence: result.decision for result in results}
+        decisions: list[AgentDecision] = []
+        for request in requests:
+            decision = decisions_by_sequence[request.sequence]
+            if decision.agent_id != request.agent_id:
+                msg = (
+                    "decision executor returned decision for wrong agent: "
+                    f"{decision.agent_id} != {request.agent_id}"
+                )
+                raise AgentDecisionError(msg)
+            request.agent.state.last_decision_time = context.clock.time
+            decisions.append(decision)
+        decisions.extend(immediate_decisions)
+
+        ordered_decisions = tuple(
+            sorted(decisions, key=lambda item: str(item.agent_id))
+        )
+        for decision in ordered_decisions:
+            self._emit_decision(
+                decision,
+                context,
+                agent=agents_by_id[decision.agent_id],
+            )
+
+        for decision in ordered_decisions:
+            self.execute_decision(decision, context)
+
+        context.emit(
+            "agents.activation.batch.completed",
+            {
+                "agent_system_id": str(self.id),
+                "agent_ids": [str(agent_id) for agent_id in ordered_agent_ids],
+                "decision_count": len(decisions),
+            },
+            source=self.id,
+        )
+        return tuple(decisions)
+
+    def _decision_context_for_agent(
+        self,
+        agent: RuntimeAgent,
+        context: RunContext,
+    ) -> DecisionContext:
         observation = self.environment.observe(
-            ObservationRequest(agent_id=agent_id),
+            ObservationRequest(agent_id=agent.id),
             context,
         )
-        decision_context = DecisionContext(
+        return DecisionContext(
             agent_id=agent.id,
             time=context.clock.time,
             profile=agent.profile,
-            state=agent.state,
+            state=agent.state.copy(),
             selected_plan=agent.selected_plan,
             observation=observation,
-            rng=context.rng,
+            rng=self._rng_for_decision(context, agent.id),
             recent_events=context.event_bus.events()[-10:],
             cognition_state=agent.cognition_state,
         )
-        decision = agent.decide(decision_context)
-        self._emit_decision(decision, context, agent=agent)
-        self.execute_decision(decision, context)
-        return decision
 
     def execute_decision(
         self,
@@ -190,6 +288,7 @@ class AgentSystem:
             "entity_type": "agent_system",
             "schema": "campussociety.agents.system.v1",
             "agent_count": len(self.agents),
+            "decision_executor_id": self.decision_executor.executor_id,
             "agents": cast(JsonValue, self.agents.snapshot_state()),
         }
 
@@ -205,24 +304,59 @@ class AgentSystem:
         *,
         time: int,
     ) -> ScheduledTask:
+        return self._schedule_activations((agent_id,), context, time=time)
+
+    def _schedule_activations(
+        self,
+        agent_ids: tuple[EntityId, ...],
+        context: RunContext,
+        *,
+        time: int,
+    ) -> ScheduledTask:
         if time < context.clock.time:
             msg = f"cannot schedule agent activation in the past: {time}"
             raise AgentDecisionError(msg)
-        existing = self._pending_activations.get(agent_id)
-        if existing is not None and not existing.cancelled:
-            existing.cancel()
+        for agent_id in agent_ids:
+            existing_time = self._pending_activation_times.get(agent_id)
+            if existing_time == time:
+                continue
+            if existing_time is not None:
+                self._remove_pending_activation(agent_id, existing_time)
+            self._pending_activation_times[agent_id] = time
+            self._activation_agents.setdefault(time, set()).add(agent_id)
 
-        def activate(inner_context: RunContext) -> None:
-            self._pending_activations.pop(agent_id, None)
-            self.activate_agent(agent_id, inner_context)
+        task = self._activation_tasks.get(time)
+        if task is not None and not task.cancelled:
+            return task
+
+        def activate_batch(inner_context: RunContext) -> None:
+            scheduled_agent_ids = tuple(
+                sorted(self._activation_agents.pop(time, set()), key=str)
+            )
+            self._activation_tasks.pop(time, None)
+            for scheduled_agent_id in scheduled_agent_ids:
+                self._pending_activation_times.pop(scheduled_agent_id, None)
+            self.activate_agents(scheduled_agent_ids, inner_context)
 
         task = context.schedule_at(
             time,
-            activate,
-            label=f"agent.activate:{agent_id}",
+            activate_batch,
+            label=f"agents.activate:{time}",
         )
-        self._pending_activations[agent_id] = task
+        self._activation_tasks[time] = task
         return task
+
+    def _remove_pending_activation(self, agent_id: EntityId, time: int) -> None:
+        agent_ids = self._activation_agents.get(time)
+        if agent_ids is None:
+            return
+        agent_ids.discard(agent_id)
+        if agent_ids:
+            return
+        self._activation_agents.pop(time, None)
+        task = self._activation_tasks.pop(time, None)
+        if task is not None:
+            task.cancel()
 
     def _emit_decision(
         self,
@@ -356,6 +490,13 @@ class AgentSystem:
         movement_id = f"agent-movement:{agent_id}:{self._next_movement_sequence}"
         self._next_movement_sequence += 1
         return movement_id
+
+    def _rng_for_decision(self, context: RunContext, agent_id: EntityId) -> Random:
+        seed_material = (
+            f"{context.seed}:{context.simulation_id}:{context.clock.time}:{agent_id}"
+        ).encode()
+        seed = int.from_bytes(sha256(seed_material).digest()[:8], "big")
+        return Random(seed)
 
     def _on_movement_arrived(self, event: Event) -> None:
         context = self._require_context()

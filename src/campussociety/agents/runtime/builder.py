@@ -10,6 +10,10 @@ from campussociety.agents.cognition.state import CognitiveState
 from campussociety.agents.plans import ActivityPlan, AgentPlan, PlanElement, TripPlan
 from campussociety.agents.profile import AgentProfile
 from campussociety.agents.runtime.agentset import AgentSet
+from campussociety.agents.runtime.execution import (
+    DecisionExecutor,
+    SerialDecisionExecutor,
+)
 from campussociety.agents.runtime.system import (
     DEFAULT_AGENT_SYSTEM_ID,
     AgentSystem,
@@ -32,6 +36,7 @@ class AgentSystemBuilder:
     default_behavior_id: str = "rule_based"
     initial_decision_delay_seconds: int = 0
     cognition_behavior_ids: tuple[str, ...] = ("llm", "hybrid")
+    decision_executor: DecisionExecutor = SerialDecisionExecutor()
 
     def build(
         self,
@@ -95,6 +100,7 @@ class AgentSystemBuilder:
             environment=environment,
             agents=AgentSet(agents),
             initial_locations=initial_locations,
+            decision_executor=self.decision_executor,
             agent_system_id=self.agent_system_id,
             initial_decision_delay_seconds=self.initial_decision_delay_seconds,
         )

@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import cast
 
 from campussociety.agents import (
+    AgentDecisionRequest,
+    AgentDecisionResult,
     AgentLifecycleStatus,
     AgentSystemBuilder,
     CognitiveState,
+    DecisionContext,
     DirectReasoning,
     LLMBehavior,
+    NoOpDecision,
     RuleBasedBehavior,
+    SerialDecisionExecutor,
 )
 from campussociety.core import EntityId, Simulation, State
 from campussociety.environment import EnvironmentBuilder, LocationRef
@@ -175,3 +181,111 @@ def test_builder_attaches_cognition_only_to_llm_backed_behavior() -> None:
         agent_system.agents.get(EntityId("llm-agent")).cognition_state,
         CognitiveState,
     )
+
+
+def test_agent_system_batches_same_time_activations_deterministically() -> None:
+    scenario = PreparedScenario(
+        spec=ScenarioSpec(
+            scenario_id="agent_batch_test",
+            version="2026.06",
+        ),
+        population=PopulationSpec(
+            agents=(
+                AgentSpec(
+                    agent_id="student-b",
+                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                ),
+                AgentSpec(
+                    agent_id="student-a",
+                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                ),
+            ),
+        ),
+        network=NetworkSpec(nodes=(NetworkNodeSpec(node_id="gate"),)),
+    )
+    executor = RecordingDecisionExecutor()
+    environment = EnvironmentBuilder().build(scenario)
+    agent_system = AgentSystemBuilder(decision_executor=executor).build(
+        scenario,
+        environment,
+    )
+    simulation = Simulation(seed=9, simulation_id="agent-batch")
+    simulation.add_initializer(environment.create_initializer())
+    simulation.add_initializer(agent_system.create_initializer())
+
+    snapshot = simulation.run()
+
+    assert executor.batches == [("student-a", "student-b")]
+    batch_started = [
+        record
+        for record in snapshot.event_trace
+        if record["topic"] == "agents.activation.batch.started"
+    ]
+    assert len(batch_started) == 1
+    assert cast(State, batch_started[0]["payload"])["agent_ids"] == [
+        "student-a",
+        "student-b",
+    ]
+    assert agent_system.agents.get(EntityId("student-a")).state.last_decision_time == 0
+    assert agent_system.agents.get(EntityId("student-b")).state.last_decision_time == 0
+
+
+def test_decision_context_uses_agent_state_copy() -> None:
+    scenario = PreparedScenario(
+        spec=ScenarioSpec(
+            scenario_id="agent_state_copy_test",
+            version="2026.06",
+        ),
+        population=PopulationSpec(
+            agents=(
+                AgentSpec(
+                    agent_id="student-1",
+                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                    attributes={"behavior_id": "mutating"},
+                ),
+            ),
+        ),
+        network=NetworkSpec(nodes=(NetworkNodeSpec(node_id="gate"),)),
+    )
+    environment = EnvironmentBuilder().build(scenario)
+    agent_system = AgentSystemBuilder().build(
+        scenario,
+        environment,
+        behavior_models={"mutating": MutatingContextStateBehavior()},
+    )
+    simulation = Simulation(seed=10, simulation_id="agent-state-copy")
+    simulation.add_initializer(environment.create_initializer())
+    simulation.add_initializer(agent_system.create_initializer())
+
+    simulation.run()
+
+    agent = agent_system.agents.get(EntityId("student-1"))
+    assert agent.state.current_plan_element_index == 0
+    assert agent.state.last_decision_time == 0
+
+
+class RecordingDecisionExecutor:
+    def __init__(self) -> None:
+        self.batches: list[tuple[str, ...]] = []
+        self._serial = SerialDecisionExecutor()
+
+    @property
+    def executor_id(self) -> str:
+        return "recording"
+
+    def decide(
+        self,
+        requests: Sequence[AgentDecisionRequest],
+    ) -> tuple[AgentDecisionResult, ...]:
+        self.batches.append(tuple(str(request.agent_id) for request in requests))
+        return self._serial.decide(requests)
+
+
+class MutatingContextStateBehavior:
+    @property
+    def behavior_id(self) -> str:
+        return "mutating"
+
+    def decide(self, context: DecisionContext) -> NoOpDecision:
+        context.state.current_plan_element_index = 99
+        return NoOpDecision(agent_id=context.agent_id, reason="mutated context copy")

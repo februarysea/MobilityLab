@@ -39,10 +39,15 @@ from campussociety.agents.plans import ActivityPlan, AgentPlan, PlanElement, Tri
 from campussociety.agents.profile import AgentProfile
 from campussociety.agents.runtime import (
     DEFAULT_AGENT_SYSTEM_ID,
+    AgentDecisionRequest,
+    AgentDecisionResult,
     AgentSet,
     AgentSystem,
     AgentSystemBuilder,
     AgentSystemInitializer,
+    DecisionExecutor,
+    SerialDecisionExecutor,
+    ThreadedDecisionExecutor,
 )
 from campussociety.agents.state import AgentLifecycleStatus, AgentState
 
@@ -51,6 +56,8 @@ __all__ = [
     "ActivityPlan",
     "AgentDecision",
     "AgentDecisionError",
+    "AgentDecisionRequest",
+    "AgentDecisionResult",
     "AgentDecisionType",
     "AgentError",
     "AgentLifecycleStatus",
@@ -66,6 +73,7 @@ __all__ = [
     "CognitiveState",
     "CommunicateDecision",
     "DecisionContext",
+    "DecisionExecutor",
     "DirectReasoning",
     "DiscreteChoiceBehavior",
     "EndActivityDecision",
@@ -82,8 +90,10 @@ __all__ = [
     "ReplanDecision",
     "RuleBasedBehavior",
     "RuntimeAgent",
+    "SerialDecisionExecutor",
     "StartActivityDecision",
     "StartTripDecision",
+    "ThreadedDecisionExecutor",
     "TripPlan",
     "WaitDecision",
 ]
