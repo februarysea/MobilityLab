@@ -18,6 +18,7 @@ from campussociety.environment.observation import (
 )
 from campussociety.environment.routing import RoutingService, SimpleNetworkRouter
 from campussociety.environment.spatial import LocationKind, LocationRef, Position
+from campussociety.environment.spatial_layers import RuntimeSpatialLayers
 from campussociety.scenario.base import PreparedScenario
 
 EnvironmentInitializer: TypeAlias = Callable[[RunContext], None]
@@ -54,10 +55,12 @@ class RuntimeWorld:
         network: RuntimeNetwork,
         facilities: FacilityStore,
         mobility_modes: tuple[MobilityMode, ...] = (),
+        spatial_layers: RuntimeSpatialLayers | None = None,
         metadata: Mapping[str, JsonValue] | None = None,
     ) -> None:
         self.network = network
         self.facilities = facilities
+        self.spatial_layers = spatial_layers or RuntimeSpatialLayers.empty()
         self.metadata = copy_json_mapping(metadata or {})
         self._mobility_modes: dict[str, MobilityMode] = {}
         self._agent_locations: dict[EntityId, LocationRef] = {}
@@ -80,6 +83,7 @@ class RuntimeWorld:
             network=network,
             facilities=facilities,
             mobility_modes=modes,
+            spatial_layers=RuntimeSpatialLayers.from_spec(scenario.spatial_layers),
             metadata={
                 "scenario_id": scenario.scenario_id,
                 "scenario_version": scenario.version,
@@ -203,12 +207,19 @@ class RuntimeWorld:
     def open_link(self, link_id: str) -> None:
         self.network.set_link_open(link_id, True)
 
+    def spatial_context_for_location(self, location: LocationRef) -> State:
+        position = self.position_for_location(location)
+        if position is None:
+            return {}
+        return self.spatial_layers.spatial_context_at(position)
+
     def to_record(self) -> State:
         return {
             "schema": "campussociety.environment.runtime_world.v1",
             "network": self.network.to_record(),
             "facilities": self.facilities.to_record(),
             "mobility_modes": [mode.to_record() for mode in self.mobility_modes()],
+            "spatial_layers": self.spatial_layers.to_record(),
             "agent_locations": self.agent_location_records(),
             "metadata": copy_json_mapping(self.metadata),
         }
@@ -268,6 +279,9 @@ class Environment:
                 "network_links": self.world.network.link_count,
                 "facility_count": self.world.facilities.size,
                 "mobility_modes": len(self.world.mobility_mode_ids()),
+                "spatial_areas": self.world.spatial_layers.area_count,
+                "grid_layers": self.world.spatial_layers.grid_layer_count,
+                "spatial_indexes": self.world.spatial_layers.spatial_index_count,
             },
             source=source,
         )

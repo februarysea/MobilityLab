@@ -73,6 +73,7 @@ class AgentObservation:
     available_modes: tuple[str, ...] = ()
     nearby_facilities: tuple[ObservedFacility, ...] = ()
     media_refs: tuple[str, ...] = ()
+    spatial_context: Mapping[str, JsonValue] = field(default_factory=dict)
     attributes: Mapping[str, JsonValue] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -83,6 +84,11 @@ class AgentObservation:
             tuple(self.nearby_facilities),
         )
         object.__setattr__(self, "media_refs", tuple(self.media_refs))
+        object.__setattr__(
+            self,
+            "spatial_context",
+            copy_json_mapping(self.spatial_context),
+        )
         object.__setattr__(self, "attributes", copy_json_mapping(self.attributes))
 
     def to_record(self) -> dict[str, JsonValue]:
@@ -95,6 +101,7 @@ class AgentObservation:
                 facility.to_record() for facility in self.nearby_facilities
             ],
             "media_refs": list(self.media_refs),
+            "spatial_context": copy_json_mapping(self.spatial_context),
             "attributes": copy_json_mapping(self.attributes),
         }
 
@@ -121,6 +128,7 @@ class ObservationService:
                 location=location,
             ),
             media_refs=(),
+            spatial_context=world.spatial_context_for_location(location),
         )
 
     def _nearby_facilities(

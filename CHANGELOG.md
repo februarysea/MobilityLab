@@ -4,6 +4,9 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Added environment runtime spatial overlays that compile scenario spatial
+  layers into runtime areas, grid layers, grid cells, property-layer context,
+  and controlled observation output.
 - Added scenario spatial-layer contracts for coordinate references, semantic
   areas, optional grid overlays, static grid cells, and spatial index
   declarations.

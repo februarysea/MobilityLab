@@ -45,6 +45,14 @@ from campussociety.environment.spatial import (
     LocationRef,
     Position,
 )
+from campussociety.environment.spatial_layers import (
+    RuntimeArea,
+    RuntimeBoundingBox,
+    RuntimeGridCell,
+    RuntimeGridLayer,
+    RuntimeLayerStore,
+    RuntimeSpatialLayers,
+)
 from campussociety.environment.world import (
     Environment,
     EnvironmentBuilder,
@@ -84,9 +92,15 @@ __all__ = [
     "RoutingError",
     "RoutingService",
     "RuntimeFacility",
+    "RuntimeArea",
+    "RuntimeBoundingBox",
+    "RuntimeGridCell",
+    "RuntimeGridLayer",
+    "RuntimeLayerStore",
     "RuntimeLink",
     "RuntimeNetwork",
     "RuntimeNode",
+    "RuntimeSpatialLayers",
     "RuntimeWorld",
     "SimpleNetworkRouter",
     "TraversalEdge",
