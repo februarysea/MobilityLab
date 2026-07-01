@@ -3,9 +3,9 @@
 from campussociety.agents.agent import RuntimeAgent
 from campussociety.agents.behavior import (
     BehaviorModel,
+    CognitiveBehavior,
     DiscreteChoiceBehavior,
     HybridBehavior,
-    LLMBehavior,
     RuleBasedBehavior,
 )
 from campussociety.agents.cognition import (
@@ -70,6 +70,7 @@ __all__ = [
     "AgentSystemInitializer",
     "AgentValidationError",
     "BehaviorModel",
+    "CognitiveBehavior",
     "CognitiveState",
     "CommunicateDecision",
     "DecisionContext",
@@ -79,7 +80,6 @@ __all__ = [
     "EndActivityDecision",
     "HybridBehavior",
     "LLMAuditRecord",
-    "LLMBehavior",
     "MemoryEntry",
     "MemoryStore",
     "NoOpDecision",

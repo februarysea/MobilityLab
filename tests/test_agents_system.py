@@ -8,10 +8,10 @@ from campussociety.agents import (
     AgentDecisionResult,
     AgentLifecycleStatus,
     AgentSystemBuilder,
+    CognitiveBehavior,
     CognitiveState,
     DecisionContext,
     DirectReasoning,
-    LLMBehavior,
     NoOpDecision,
     RuleBasedBehavior,
     SerialDecisionExecutor,
@@ -151,7 +151,7 @@ def test_agent_system_runs_plan_driven_agent_through_environment() -> None:
     ]
 
 
-def test_builder_attaches_cognition_only_to_llm_backed_behavior() -> None:
+def test_builder_attaches_cognition_only_to_cognitive_behavior() -> None:
     scenario = PreparedScenario(
         spec=ScenarioSpec(
             scenario_id="agent_cognition_test",
@@ -160,7 +160,10 @@ def test_builder_attaches_cognition_only_to_llm_backed_behavior() -> None:
         population=PopulationSpec(
             agents=(
                 AgentSpec(agent_id="rule-agent", attributes={"behavior_id": "rule"}),
-                AgentSpec(agent_id="llm-agent", attributes={"behavior_id": "llm"}),
+                AgentSpec(
+                    agent_id="cognitive-agent",
+                    attributes={"behavior_id": "cognitive"},
+                ),
             ),
         ),
     )
@@ -172,13 +175,13 @@ def test_builder_attaches_cognition_only_to_llm_backed_behavior() -> None:
         environment,
         behavior_models={
             "rule": RuleBasedBehavior(behavior_id="rule"),
-            "llm": LLMBehavior(reasoning_strategy=DirectReasoning()),
+            "cognitive": CognitiveBehavior(reasoning_strategy=DirectReasoning()),
         },
     )
 
     assert agent_system.agents.get(EntityId("rule-agent")).cognition_state is None
     assert isinstance(
-        agent_system.agents.get(EntityId("llm-agent")).cognition_state,
+        agent_system.agents.get(EntityId("cognitive-agent")).cognition_state,
         CognitiveState,
     )
 

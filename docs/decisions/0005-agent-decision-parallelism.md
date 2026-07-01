@@ -7,8 +7,9 @@ Accepted
 ## Context
 
 CampusSociety agents may use lightweight rule-based behavior, discrete-choice
-models, LLM-backed behavior, or hybrid behavior. LLM-backed decisions and some
-future choice models can be expensive enough to require concurrent execution.
+models, cognition-backed behavior, or hybrid behavior. Cognition-backed
+decisions and some future choice models can be expensive enough to require
+concurrent execution.
 
 The simulation runtime still needs deterministic replay. The environment owns
 authoritative physical state, and movement execution must remain deterministic.
@@ -23,8 +24,9 @@ Agent activation is split into two phases:
   agent-id order
 
 The default executor is `SerialDecisionExecutor`. A `ThreadedDecisionExecutor`
-is available for IO-bound or LLM-backed behavior. Executors must return results
-in request sequence order and must not mutate the environment or core runtime.
+is available for IO-bound or cognition-backed behavior. Executors must return
+results in request sequence order and must not mutate the environment or core
+runtime.
 
 Agent activations scheduled for the same simulation time are batched by
 `AgentSystem`. Each decision context receives an agent-specific deterministic
@@ -36,8 +38,8 @@ concurrently.
 
 Rule-based behavior remains simple and deterministic.
 
-LLM-backed behavior can later run concurrently without changing environment
-mutation semantics.
+Cognition-backed behavior can later run concurrently without changing
+environment mutation semantics.
 
 Runtime state changes, movement requests, and event emission remain ordered and
 replayable.

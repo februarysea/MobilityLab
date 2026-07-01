@@ -35,7 +35,7 @@ class AgentSystemBuilder:
     default_initial_location: LocationRef | None = None
     default_behavior_id: str = "rule_based"
     initial_decision_delay_seconds: int = 0
-    cognition_behavior_ids: tuple[str, ...] = ("llm", "hybrid")
+    cognition_behavior_ids: tuple[str, ...] = ("cognitive", "hybrid")
     decision_executor: DecisionExecutor = SerialDecisionExecutor()
 
     def build(

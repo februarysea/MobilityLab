@@ -69,7 +69,7 @@ class SerialDecisionExecutor:
 
 @dataclass(frozen=True, slots=True)
 class ThreadedDecisionExecutor:
-    """Threaded executor for IO-bound or LLM-backed decision models."""
+    """Threaded executor for IO-bound or cognition-backed decision models."""
 
     max_workers: int | None = None
     executor_id: str = "threaded"

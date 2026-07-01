@@ -1,4 +1,4 @@
-"""Optional cognition components for LLM-backed or hybrid behavior."""
+"""Optional cognition components for cognition-backed or hybrid behavior."""
 
 from campussociety.agents.cognition.audit import LLMAuditRecord
 from campussociety.agents.cognition.direct import DirectReasoning

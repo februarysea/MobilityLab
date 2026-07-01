@@ -7,9 +7,9 @@ Accepted
 ## Context
 
 CampusSociety needs to support traditional agent-based simulation,
-LLM-driven behavior, and hybrid behavior without making LLM cognition part of
-the simulation core. The project also needs to keep policy and intervention
-logic distinct from agent decision mechanisms.
+cognition-backed behavior, and hybrid behavior without making LLM provider
+calls part of the simulation core. The project also needs to keep policy and
+intervention logic distinct from agent decision mechanisms.
 
 The simulation core already owns deterministic time, scheduling, events, and
 snapshots. The scenario layer owns initial population and plans. The environment
@@ -22,12 +22,13 @@ The agent layer uses `RuntimeAgent` as the stable runtime entity. The agent's
 decision mechanism is attached as a replaceable `BehaviorModel`.
 
 Agent behavior implementations include deterministic rule-based behavior,
-future discrete-choice behavior, LLM-backed behavior, and hybrid behavior. The
+future discrete-choice behavior, cognition-backed behavior, and hybrid behavior. The
 agent layer does not use `Policy` as the decision mechanism name; policy remains
 reserved for interventions, governance rules, and experiment policy settings.
 
-LLM and hybrid behavior can use optional cognition components:
+Cognition-backed and hybrid behavior can use optional cognition components:
 
+- `CognitiveBehavior`
 - `CognitiveState`
 - `MemoryStore`
 - `ReasoningStrategy`
@@ -47,8 +48,9 @@ Agent physical location remains authoritative in `RuntimeWorld`, not in
 
 Traditional ABM agents stay lightweight and deterministic.
 
-LLM-backed agents can swap reasoning strategies such as direct decision,
+Cognition-backed agents can swap reasoning strategies such as direct decision,
 ReAct-style reasoning, or reflection without changing the runtime agent class.
+LLM provider details stay behind service contracts.
 
 Experiments can compare behavior models over the same population and scenario.
 

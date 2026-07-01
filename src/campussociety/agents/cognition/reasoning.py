@@ -9,7 +9,7 @@ from campussociety.agents.decisions import AgentDecision
 
 @runtime_checkable
 class ReasoningStrategy(Protocol):
-    """Pluggable reasoning strategy used inside LLM-backed behavior."""
+    """Pluggable reasoning strategy used inside cognition-backed behavior."""
 
     @property
     def strategy_id(self) -> str: ...

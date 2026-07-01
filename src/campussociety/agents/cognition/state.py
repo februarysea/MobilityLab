@@ -11,7 +11,7 @@ from campussociety.core.entities import JsonValue
 
 @dataclass(slots=True)
 class CognitiveState:
-    """Optional cognition state for LLM-backed or hybrid behavior."""
+    """Optional cognition state for cognition-backed or hybrid behavior."""
 
     memory: MemoryStore = field(default_factory=MemoryStore)
     reasoning_state: Mapping[str, JsonValue] = field(default_factory=dict)

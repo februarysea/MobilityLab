@@ -4,6 +4,11 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Added a services MVP with provider-neutral LLM request/response contracts,
+  prompt rendering, deterministic LLM test client, LLM cache/retry wrappers,
+  routing cache wrapper, and a thin service bundle.
+- Renamed agent-layer `LLMBehavior` to `CognitiveBehavior` to keep LLM provider
+  services distinct from cognition-backed agent behavior.
 - Added a visualization MVP with artifact readers, dataset catalog contracts,
   GeoJSON export, replay/trace query helpers, dashboard specs, and a thin
   React/Vite/deck.gl replay viewer shell.

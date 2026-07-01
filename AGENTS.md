@@ -69,24 +69,24 @@ Responsibilities:
 - agent state: location, current activity, schedule, trip status, fatigue,
   satisfaction
 - agent plans: daily activity plans, trip plans, fallback plans
-- behavior and policy: rule-based, discrete-choice, LLM-driven, or hybrid
+- behavior models: rule-based, discrete-choice, cognition-backed, or hybrid
   decision making
 - agent perception: accessible environment observations
 - agent memory: short-term and long-term experience
 - agent interaction: communication, social influence, group travel, queue
   interaction
 
-Policy backends:
+Behavior models:
 
-- `RuleBasedPolicy`
-- `DiscreteChoicePolicy`
-- `LLMPolicy`
-- `HybridPolicy`
+- `RuleBasedBehavior`
+- `DiscreteChoiceBehavior`
+- `CognitiveBehavior`
+- `HybridBehavior`
 
 Rules:
 
-- LLM is a policy backend.
-- Agent policy backends are swappable.
+- LLM provider calls live behind service contracts.
+- Agent behavior models are swappable.
 - Agent behavior depends on core contracts and controlled environment
   observations.
 
@@ -323,7 +323,8 @@ campussociety/
     profile.py
     state.py
     plans.py
-    policy.py
+    behavior/
+    cognition/
     perception.py
     memory.py
     interactions.py
