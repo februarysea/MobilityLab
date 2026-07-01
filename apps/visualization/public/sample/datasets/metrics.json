@@ -1,0 +1,36 @@
+{
+  "rows": [
+    {
+      "metadata": {},
+      "name": "run.final_time",
+      "unit": "seconds",
+      "value": 8
+    },
+    {
+      "metadata": {},
+      "name": "run.event_count",
+      "unit": null,
+      "value": 6
+    },
+    {
+      "metadata": {},
+      "name": "agents.count",
+      "unit": null,
+      "value": 1
+    },
+    {
+      "metadata": {},
+      "name": "movement.started.count",
+      "unit": null,
+      "value": 1
+    },
+    {
+      "metadata": {},
+      "name": "movement.arrived.count",
+      "unit": null,
+      "value": 1
+    }
+  ],
+  "run_id": "sample-run",
+  "schema": "campussociety.visualization.metric_table.v1"
+}

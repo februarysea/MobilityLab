@@ -1,0 +1,117 @@
+{
+  "catalog": {
+    "datasets": [
+      {
+        "capabilities": ["network_geometry"],
+        "columns": [],
+        "dataset_id": "network",
+        "entity_key": null,
+        "format": "geojson",
+        "geometry_key": "geometry",
+        "kind": "geojson",
+        "metadata": {
+          "recommended_layer": "network"
+        },
+        "path": "datasets/network.geojson",
+        "schema": "campussociety.visualization.dataset.v1",
+        "time_key": null,
+        "title": "Network Geometry"
+      },
+      {
+        "capabilities": ["facility_points"],
+        "columns": [],
+        "dataset_id": "facilities",
+        "entity_key": null,
+        "format": "geojson",
+        "geometry_key": "geometry",
+        "kind": "geojson",
+        "metadata": {
+          "recommended_layer": "facilities"
+        },
+        "path": "datasets/facilities.geojson",
+        "schema": "campussociety.visualization.dataset.v1",
+        "time_key": null,
+        "title": "Facility Points"
+      },
+      {
+        "capabilities": ["replay_frames"],
+        "columns": [
+          {
+            "logical_type": "integer",
+            "metadata": {},
+            "name": "time",
+            "required": true,
+            "role": "time",
+            "unit": "seconds"
+          }
+        ],
+        "dataset_id": "replay_frames",
+        "entity_key": null,
+        "format": "jsonl",
+        "geometry_key": null,
+        "kind": "jsonl",
+        "metadata": {
+          "recommended_panel": "timeline"
+        },
+        "path": "datasets/replay_frames.jsonl",
+        "schema": "campussociety.visualization.dataset.v1",
+        "time_key": "time",
+        "title": "Replay Frames"
+      },
+      {
+        "capabilities": ["metric_summary"],
+        "columns": [],
+        "dataset_id": "metrics",
+        "entity_key": null,
+        "format": "json",
+        "geometry_key": null,
+        "kind": "json",
+        "metadata": {
+          "recommended_panel": "metrics"
+        },
+        "path": "datasets/metrics.json",
+        "schema": "campussociety.visualization.dataset.v1",
+        "time_key": null,
+        "title": "Run Metrics"
+      },
+      {
+        "capabilities": ["event_timeline", "trace_events"],
+        "columns": [],
+        "dataset_id": "trace_events",
+        "entity_key": null,
+        "format": "jsonl",
+        "geometry_key": null,
+        "kind": "jsonl",
+        "metadata": {
+          "recommended_panel": "events"
+        },
+        "path": "datasets/trace_events.jsonl",
+        "schema": "campussociety.visualization.dataset.v1",
+        "time_key": "time",
+        "title": "Trace Events"
+      }
+    ],
+    "schema": "campussociety.visualization.dataset_catalog.v1"
+  },
+  "dashboards": [
+    {
+      "dashboard_id": "replay",
+      "layers": [],
+      "metadata": {},
+      "panels": [],
+      "schema": "campussociety.visualization.dashboard.v1",
+      "title": "Replay Dashboard"
+    }
+  ],
+  "final_time": 8,
+  "metadata": {
+    "event_count": 6,
+    "frame_count": 4
+  },
+  "run_id": "sample-run",
+  "scenario_id": "sample-campus",
+  "scenario_version": "2026.07",
+  "schema": "campussociety.visualization.manifest.v1",
+  "source_artifacts": {},
+  "variant_id": "baseline"
+}

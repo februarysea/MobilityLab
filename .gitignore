@@ -11,6 +11,8 @@ htmlcov/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+node_modules/
+*.tsbuildinfo
 
 # Virtual environments
 .venv/
@@ -28,6 +30,7 @@ runs/
 data/raw/
 data/interim/
 data/processed/
+apps/visualization/dist/
 
 # Local reference repositories
 AgentSociety/

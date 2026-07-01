@@ -1,0 +1,29 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [2, 0],
+        "type": "Point"
+      },
+      "id": "facility:classroom-a",
+      "properties": {
+        "access_node_id": "classroom",
+        "attributes": {},
+        "capacity": null,
+        "facility_id": "classroom-a",
+        "facility_type": "classroom",
+        "feature_type": "facility",
+        "state": {
+          "occupancy": 0,
+          "open": true
+        }
+      },
+      "type": "Feature"
+    }
+  ],
+  "metadata": {
+    "facility_count": 1,
+    "schema": "campussociety.visualization.facilities_geojson.v1"
+  },
+  "type": "FeatureCollection"
+}

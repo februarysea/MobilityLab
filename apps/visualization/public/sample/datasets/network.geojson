@@ -1,0 +1,64 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [0, 0],
+        "type": "Point"
+      },
+      "id": "node:gate",
+      "properties": {
+        "attributes": {},
+        "feature_type": "network_node",
+        "node_id": "gate"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [2, 0],
+        "type": "Point"
+      },
+      "id": "node:classroom",
+      "properties": {
+        "attributes": {},
+        "feature_type": "network_node",
+        "node_id": "classroom"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [0, 0],
+          [2, 0]
+        ],
+        "type": "LineString"
+      },
+      "id": "link:gate-classroom",
+      "properties": {
+        "allowed_modes": ["walk"],
+        "attributes": {},
+        "bidirectional": true,
+        "feature_type": "network_link",
+        "from_node_id": "gate",
+        "length_meters": 2.8,
+        "link_id": "gate-classroom",
+        "state": {
+          "cost_multiplier": 1,
+          "occupancy": 0,
+          "open": true,
+          "speed_mps": null
+        },
+        "to_node_id": "classroom"
+      },
+      "type": "Feature"
+    }
+  ],
+  "metadata": {
+    "coordinate_system": "local",
+    "link_count": 1,
+    "node_count": 2,
+    "schema": "campussociety.visualization.network_geojson.v1"
+  },
+  "type": "FeatureCollection"
+}

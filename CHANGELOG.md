@@ -4,6 +4,9 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Added a visualization MVP with artifact readers, dataset catalog contracts,
+  GeoJSON export, replay/trace query helpers, dashboard specs, and a thin
+  React/Vite/deck.gl replay viewer shell.
 - Added an experiment run orchestration MVP with single-run configs,
   simulation assembly, run listeners, event trace export, built-in metrics,
   replay artifacts, run artifacts, and structured run results.
