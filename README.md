@@ -1,11 +1,12 @@
 # CampusSociety
 
-CampusSociety is a simulation framework for LLM-driven, traditional, and hybrid
-agent-based mobility simulation.
+CampusSociety is a simulation framework for traditional, agent-based,
+LLM-driven, and hybrid mobility and transportation simulation.
 
-The initial testbeds use openly available U.S. public datasets for classic ABM
-and mobility experiments, while the package structure keeps the core simulation
-architecture compatible with regional and city-scale scenarios.
+The initial implementation target is a mobility-first simulation foundation,
+with public U.S. datasets planned as later scenario inputs. The package
+structure keeps the core simulation architecture compatible with regional and
+city-scale scenarios.
 
 ## Development
 

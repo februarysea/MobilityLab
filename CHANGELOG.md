@@ -4,6 +4,9 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Updated the project guide to clarify the mobility-first transport scope,
+  spatial-overlay boundaries, current MVP capability boundary, and transport
+  benchmark progression.
 - Added environment runtime spatial overlays that compile scenario spatial
   layers into runtime areas, grid layers, grid cells, property-layer context,
   and controlled observation output.

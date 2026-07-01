@@ -2,22 +2,28 @@
 
 ## Project Scope
 
-CampusSociety is a simulation framework for LLM-driven, traditional, and
-hybrid agent-based mobility simulation.
+CampusSociety is a simulation framework for traditional, agent-based,
+LLM-driven, and hybrid mobility and transportation simulation.
 
-The first testbeds use openly available U.S. public datasets for classic ABM
-and mobility experiments. The architecture remains compatible with larger
-regional and city-scale scenarios from the start.
+The first implementation target is a mobility-first simulation foundation:
+network-route movement, agent trip/activity execution, spatial context,
+experiment traces, and reproducible transport benchmarks. Public U.S. datasets
+enter through planned scenario adapters.
+
+The architecture remains compatible with larger regional and city-scale
+scenarios from the start.
 
 ## Architecture Principles
 
 - Keep the full simulation architecture in place.
 - Start each layer with the smallest useful implementation.
 - Keep domain-specific logic out of the framework core.
-- Support traditional ABM, LLM-driven agents, and hybrid policies.
+- Support traditional transport models, agent-based mobility simulation,
+  LLM-driven agents, and hybrid behavior models.
 - Keep simulation execution deterministic and reproducible.
 - Record structured traces for debugging, evaluation, and replay.
-- Treat LLM calls as policy/service behavior, not simulation-core behavior.
+- Route LLM calls through policy/service behavior and keep the simulation core
+  provider-neutral.
 - Keep visualization and user interfaces separate from simulation execution.
 
 ## Logical Layers
@@ -52,9 +58,9 @@ Core concepts:
 
 Rules:
 
-- `core/` contains no scenario-specific concepts.
-- `core/` contains no geography-specific concepts.
-- `core/` contains no LLM provider calls.
+- `core/` owns generic runtime contracts.
+- Scenario, geography, and provider details live in outer layers.
+- LLM provider calls live behind service contracts.
 - `core/` exposes stable contracts for agents, environment, scenarios, and
   experiments.
 
@@ -65,11 +71,12 @@ Purpose: agent definitions, state, behavior, and interaction.
 Responsibilities:
 
 - agent profile: role, demographics, preferences, budget, mobility access
-- agent state: location, current activity, schedule, trip status, fatigue,
-  satisfaction
+- agent state: lifecycle status, current activity, current trip, plan progress,
+  fatigue, satisfaction, and behavior-specific attributes
 - agent plans: daily activity plans, trip plans, fallback plans
 - behavior models: rule-based, discrete-choice, cognition-backed, or hybrid
-  decision making
+  decisions for activity, mode, departure time, route preference, replanning, and
+  communication
 - agent perception: accessible environment observations
 - agent memory: short-term and long-term experience
 - agent interaction: communication, social influence, group travel, queue
@@ -88,6 +95,14 @@ Rules:
 - Agent behavior models are swappable.
 - Agent behavior depends on core contracts and controlled environment
   observations.
+- Authoritative physical location belongs to the environment runtime world.
+- Agent state stores lifecycle, plan, activity, trip, and behavior context.
+- Agent behavior emits high-level decisions and intents; routing, movement,
+  link occupancy, queueing, and vehicle/transit operations belong to the
+  environment.
+- Use `BehaviorModel` for agent decision mechanisms. Reserve `Policy` for
+  experiment policy, governance constraints, pricing, closures, service changes,
+  and other interventions.
 
 ### 3. Environment System
 
@@ -95,9 +110,13 @@ Purpose: external world, mobility supply, and observable context.
 
 Responsibilities:
 
+- runtime world: authoritative agent physical locations, network state,
+  facilities, mobility modes, and runtime spatial overlays
 - spatial network: walking, cycling, vehicle, and future multimodal networks
 - places and facilities: homes, workplaces, schools, shops, stations, parking
   areas, and public facilities
+- spatial overlays: semantic areas, grid layers, grid cells, property layers,
+  and spatial context compiled from scenario declarations
 - mobility supply: buses, shared bikes, parking, road capacity, service
   frequency
 - dynamic environment: weather, congestion, closures, incidents, facility
@@ -108,9 +127,16 @@ Responsibilities:
 
 Rules:
 
-- Agents access environment state through observation/perception APIs.
-- Agents do not read unrestricted global state.
-- Routing cost depends on current environment state.
+- Agents access environment state through controlled observation/perception
+  APIs.
+- Current routing is deterministic network-route movement with fixed or manually
+  adjusted link costs.
+- Capacity, congestion, queueing, BPR/Vickrey dynamics, transit vehicles, and
+  dynamic network loading are next-stage transport supply models.
+- Grid layers are spatial overlays for aggregation, heatmaps, sampling,
+  indexing, and observation context.
+- Dedicated grid movement belongs in a separate movement backend when a model
+  requires it.
 - Routing can be implemented internally or delegated to a routing service.
 
 ### 4. Scenario System
@@ -124,10 +150,13 @@ Responsibilities:
 - construct agent population
 - define initial schedules and activity demand
 - define available mobility modes and facilities
+- define static spatial declarations: coordinate reference, extent, semantic
+  areas, optional grid overlays, grid cells, property layers, and spatial index
+  preferences
 - define baseline policies and constraints
 - define scenario variants
 
-Initial public-data scenario examples:
+Planned public-data scenario inputs:
 
 - Census TIGER/Line geography
 - ACS or ACS PUMS demographic inputs
@@ -137,20 +166,23 @@ Initial public-data scenario examples:
 - EPA Smart Location Database indicators
 - OSM or other routable network inputs when appropriate
 
-Classic ABM experiment examples:
+Transportation benchmark and model targets:
 
-- Schelling-style residential sorting
-- commuting flow and departure-time simulation
-- activity schedule simulation
-- mode-choice baseline comparison
-- accessibility or transit service interventions
-- road, facility, or service disruption scenarios
+- fixed-cost shortest-route commute and closure/accessibility experiments
+- Pigou or parallel-route user-equilibrium examples
+- Braess network intervention examples
+- Vickrey bottleneck departure-time and queueing examples
+- BPR link-performance static assignment and Sioux Falls-style benchmarks
+- MATSim-style activity plans, scoring, replanning, and repeated iterations
+- SUMO-style microscopic network execution through future adapters
 
 Rules:
 
 - Scenario defines what to simulate.
-- Scenario does not own experiment metrics.
-- Scenario does not decide run counts.
+- Experiment owns metrics and run counts.
+- Scenario owns static spatial declarations.
+- Runtime occupancy, mutable congestion, agent positions, replay state, and
+  spatial query caches belong to environment and experiment runtime layers.
 - Dataset-specific and domain-specific logic lives in scenario adapters.
 
 ### 5. Experiment & Data Collection System
@@ -170,7 +202,14 @@ Responsibilities:
 - support replay and audit
 - export results for notebooks, dashboards, and reports
 
-Example metrics:
+Current built-in metric scope:
+
+- final simulation time
+- event counts
+- agent lifecycle counts
+- movement event and mode counts
+
+Target transportation metrics:
 
 - arrival delay
 - lateness rate
@@ -189,9 +228,11 @@ Rules:
 
 - Experiment defines how to run and evaluate.
 - Experiment depends on scenario.
-- Scenario does not depend on experiment.
+- Scenario stays upstream of experiment outputs.
 - Metrics and traces are reproducible from run config, seed, scenario version,
   and policy version.
+- Batch comparison, assignment/equilibrium loops, calibration, and repeated
+  replanning iterations are experiment-layer responsibilities.
 
 ### 6. Visualization & Interface System
 
@@ -226,8 +267,9 @@ Rules:
 
 - Visualization consumes simulation state, traces, metrics, and scenario
   metadata.
-- Visualization does not mutate simulation state.
-- Visualization does not define simulation semantics.
+- Visualization consumes state and artifacts through read-only data contracts.
+- Simulation semantics stay in core, scenario, environment, agent, experiment,
+  and service contracts.
 - Experiment outputs should include visualization-ready data contracts.
 - UI-specific models stay outside core, agent, environment, and scenario
   modules.
@@ -261,11 +303,12 @@ Possible services:
 Rules:
 
 - LLM provider details stay in services.
-- Routing engines are swappable: NetworkX, OSRM, SUMO, MATSim, or future
-  backends.
+- Routing and simulation engines are planned to be swappable through service or
+  adapter boundaries: NetworkX, OSRM, SUMO, MATSim, or future backends.
 - Storage backends are swappable: local files, SQLite, Parquet, Postgres, or
   future systems.
-- Services do not define simulation semantics.
+- Simulation semantics stay in framework contracts; services provide replaceable
+  external capabilities.
 
 ## Dependency Direction
 
@@ -284,6 +327,7 @@ Agent System
 
 Environment System
   -> Core contracts
+  -> Scenario contracts
   -> Services for routing/data backends
 
 Visualization & Interface System
@@ -293,12 +337,13 @@ Visualization & Interface System
   -> Services for storage/export backends
 
 Core
-  -> no domain-specific layer
+  -> generic runtime contracts
 ```
 
 Rules:
 
-- Core does not depend on Agent, Environment, Scenario, Experiment, or LLM.
+- Core stays upstream of Agent, Environment, Scenario, Experiment, and LLM
+  provider layers.
 - Scenario configures Agent and Environment.
 - Experiment runs Scenario and collects data.
 - Visualization consumes scenario metadata, traces, metrics, and snapshots.
@@ -320,43 +365,52 @@ campussociety/
     profile.py
     state.py
     plans.py
+    decisions.py
+    context.py
     behavior/
     cognition/
-    perception.py
-    memory.py
-    interactions.py
+    runtime/
 
   environment/
     world.py
     network.py
-    places.py
-    mobility_supply.py
+    facilities.py
+    movement.py
     routing.py
-    dynamics.py
+    spatial.py
+    spatial_layers.py
     observation.py
 
   scenario/
     base.py
+    config.py
     loaders.py
     population.py
+    spatial.py
+    world.py
     variants.py
 
   experiments/
-    runner.py
+    artifacts.py
+    assembly.py
     config.py
+    listeners.py
     metrics.py
-    traces.py
     replay.py
-    export.py
+    results.py
+    runner.py
+    traces.py
 
   visualization/
     datasets.py
-    maps.py
-    replay.py
     dashboards.py
-    trace_inspector.py
-    figures.py
-    web.py
+    exporters.py
+    geometry.py
+    layers.py
+    metrics.py
+    readers.py
+    replay.py
+    traces.py
 
   services/
     llm/
@@ -366,26 +420,41 @@ campussociety/
     export/
 
   adapters/
-    us/
-      README.md
-
-    census/
-      README.md
-
-    lodes/
-      README.md
-
-    nhts/
-      README.md
-
-    gtfs/
-      README.md
-
-    epa/
+    city/
       README.md
 ```
 
-## Initial Public-data ABM Testbed Scope
+## Current MVP Boundary
+
+Implemented:
+
+- deterministic simulation core with scheduler, event bus, entity registry, and
+  snapshots
+- scenario specs for population, network, facilities, mobility supply, variants,
+  and spatial layers
+- environment runtime world with fixed-cost routing, deterministic movement,
+  facilities, agent physical locations, and spatial overlay observations
+- agent runtime for trip/activity plans and swappable behavior models
+- single-run experiment orchestration with traces, basic metrics, replay, and
+  artifacts
+- visualization artifact export for network, facilities, replay frames,
+  metrics, and trace events
+- provider-neutral LLM service contracts, prompt rendering, cache/retry wrappers,
+  and deterministic test clients
+
+Roadmap capabilities:
+
+- public-data download/connectors/loaders for Census, LODES, NHTS, GTFS, EPA,
+  OSM, or Sioux Falls-style benchmark data
+- first-class OD demand, OD matrix, demand expansion, or zone connectors
+- flow-dependent link costs, BPR functions, queues, Vickrey bottleneck dynamics,
+  dynamic network loading, or traffic assignment/equilibrium loops
+- transit vehicle operations, schedules, headway/wait-time simulation, or
+  microscopic car-following/lane models
+- batch experiment comparison, calibration loops, and MATSim-style scoring and
+  replanning iterations
+
+## Mobility and Transport Testbed Scope
 
 Initial public data inputs:
 
@@ -407,14 +476,18 @@ Initial simulated entities:
 - transit stops and services
 - zones, tracts, block groups, or other public-data geographies
 
-Initial experiments:
+Initial benchmark progression:
 
-- Schelling-style residential sorting
-- LODES-informed commuting simulation
-- NHTS-informed mode and departure-time choice
-- activity schedule simulation
-- transit accessibility or service-frequency interventions
-- road closure, facility disruption, or pricing interventions
+1. fixed-cost commute with shortest-route movement, closures, and accessibility
+   metrics
+2. OD demand and zone connector scenarios, including LODES-informed commuting
+3. Pigou, parallel-route, and Braess network examples for route choice and
+   intervention effects
+4. BPR link-performance static assignment and Sioux Falls-style benchmarks
+5. Vickrey bottleneck departure-time choice and queueing
+6. activity-based daily schedules with NHTS or ATUS priors
+7. MATSim-style scoring, replanning, and repeated iterations
+8. GTFS transit supply and service-frequency interventions
 
 Initial policies and behavior models:
 
@@ -433,7 +506,11 @@ LLM call timing:
 Rules:
 
 - Movement execution is deterministic.
-- The movement kernel does not call the LLM at every simulation step.
+- LLM calls happen in planning, decision, replanning, and memory phases.
+- Grid layers support spatial context and aggregation. Cell-based traffic
+  execution belongs in a dedicated grid movement backend.
+- Routing, network loading, queues, transit operations, and traffic assignment
+  stay outside agent behavior models.
 
 ## Reproducibility Requirements
 
@@ -442,12 +519,12 @@ Every run records:
 - scenario id and version
 - experiment id
 - random seed
-- policy backend and version
+- behavior model and policy or intervention version
 - LLM model and prompt version, if used
 - LLM input summary
 - LLM structured output
 - validation result
-- action executed by the simulation
+- decision or movement intent executed by the simulation
 - event trace
 - metrics output
 
@@ -469,9 +546,14 @@ Framework-level names:
 - `Mode`
 - `Trip`
 - `Activity`
-- `Policy`
+- `BehaviorModel`
+- `PolicyIntervention`
 - `Observation`
 - `Event`
+- `Area`
+- `Zone`
+- `SpatialLayer`
+- `GridLayer`
 
 Public-data and scenario adapter names:
 
@@ -482,6 +564,15 @@ Public-data and scenario adapter names:
 - `Home`
 - `Workplace`
 - `TransitStop`
+
+Transport model names:
+
+- `ODFlow`
+- `ODMatrix`
+- `RouteChoice`
+- `LinkCostFunction`
+- `NetworkLoading`
+- `TrafficAssignment`
 
 ## Project Records
 
@@ -501,8 +592,7 @@ Changelog rules:
 - Record architecture changes, new layers, major behavior changes, new
   dependencies, data format changes, and experiment protocol changes.
 - Keep entries concise and factual.
-- Do not use `CHANGELOG.md` for implementation notes that are only useful
-  during a single coding session.
+- Keep single-session implementation notes out of `CHANGELOG.md`.
 
 ADR rules:
 
@@ -511,3 +601,6 @@ ADR rules:
 - Use sequential filenames: `0001-title.md`, `0002-title.md`.
 - Use this structure: `Status`, `Context`, `Decision`, `Consequences`.
 - Keep accepted decisions stable. Add a new ADR to supersede an old decision.
+- ADR 0009 supersedes older campus-first ADR language only for initial testbed
+  scope; older ADRs remain valid for architecture boundaries until a newer ADR
+  explicitly supersedes them.
