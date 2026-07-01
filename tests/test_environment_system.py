@@ -30,54 +30,54 @@ from campussociety.scenario import (
 def build_environment_scenario() -> PreparedScenario:
     return PreparedScenario(
         spec=ScenarioSpec(
-            scenario_id="campus_environment_test",
+            scenario_id="environment_commute_test",
             version="2026.06",
         ),
         network=NetworkSpec(
             nodes=(
-                NetworkNodeSpec(node_id="gate", x=0.0, y=0.0),
-                NetworkNodeSpec(node_id="quad", x=1.0, y=0.0),
-                NetworkNodeSpec(node_id="classroom", x=2.0, y=0.0),
+                NetworkNodeSpec(node_id="home", x=0.0, y=0.0),
+                NetworkNodeSpec(node_id="main", x=1.0, y=0.0),
+                NetworkNodeSpec(node_id="workplace", x=2.0, y=0.0),
             ),
             links=(
                 NetworkLinkSpec(
-                    link_id="gate-quad",
-                    from_node_id="gate",
-                    to_node_id="quad",
+                    link_id="home-main",
+                    from_node_id="home",
+                    to_node_id="main",
                     length_meters=1.4,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
                 ),
                 NetworkLinkSpec(
-                    link_id="quad-classroom",
-                    from_node_id="quad",
-                    to_node_id="classroom",
+                    link_id="main-work",
+                    from_node_id="main",
+                    to_node_id="workplace",
                     length_meters=1.4,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
                 ),
                 NetworkLinkSpec(
-                    link_id="gate-classroom",
-                    from_node_id="gate",
-                    to_node_id="classroom",
+                    link_id="home-work",
+                    from_node_id="home",
+                    to_node_id="workplace",
                     length_meters=10.0,
                     allowed_modes=("walk",),
                 ),
             ),
-            coordinate_system="local-campus",
+            coordinate_system="local-planar",
         ),
         facilities=FacilitiesSpec(
             facilities=(
                 FacilitySpec(
                     facility_id="library",
                     facility_type="library",
-                    location_id="quad",
+                    location_id="main",
                     capacity=120,
                 ),
                 FacilitySpec(
-                    facility_id="classroom-a",
-                    facility_type="classroom",
-                    location_id="classroom",
+                    facility_id="workplace-a",
+                    facility_type="workplace",
+                    location_id="workplace",
                     capacity=80,
                 ),
             ),
@@ -113,43 +113,43 @@ def test_simple_router_is_separate_and_respects_runtime_link_state() -> None:
     environment = EnvironmentBuilder().build(build_environment_scenario())
     router = SimpleNetworkRouter()
     request = RouteRequest(
-        origin=LocationRef.node("gate"),
-        destination=LocationRef.facility("classroom-a"),
+        origin=LocationRef.node("home"),
+        destination=LocationRef.facility("workplace-a"),
         mode="walk",
         departure_time=0,
-        agent_id=EntityId("student-1"),
+        agent_id=EntityId("worker-1"),
     )
 
     route = router.route(request, environment.world)
 
     assert [leg.link_id for leg in route.legs] == [
-        "gate-quad",
-        "quad-classroom",
+        "home-main",
+        "main-work",
     ]
     assert route.total_travel_time_seconds == 2
 
-    environment.world.close_link("quad-classroom")
+    environment.world.close_link("main-work")
     rerouted = router.route(request, environment.world)
 
-    assert [leg.link_id for leg in rerouted.legs] == ["gate-classroom"]
+    assert [leg.link_id for leg in rerouted.legs] == ["home-work"]
 
-    environment.world.close_link("gate-classroom")
+    environment.world.close_link("home-work")
     with pytest.raises(RouteNotFoundError):
         router.route(request, environment.world)
 
 
 def test_movement_kernel_advances_agent_location_and_emits_events() -> None:
     environment = EnvironmentBuilder().build(build_environment_scenario())
-    agent_id = EntityId("student-1")
+    agent_id = EntityId("worker-1")
     simulation = Simulation(seed=2, simulation_id="movement-test")
 
     def install_and_start(context: RunContext) -> None:
         environment.install(context)
-        environment.world.set_agent_location(agent_id, LocationRef.node("gate"))
+        environment.world.set_agent_location(agent_id, LocationRef.node("home"))
         environment.start_movement(
             MovementIntent(
                 agent_id=agent_id,
-                destination=LocationRef.facility("classroom-a"),
+                destination=LocationRef.facility("workplace-a"),
                 mode="walk",
                 movement_id="morning-trip",
             ),
@@ -162,7 +162,7 @@ def test_movement_kernel_advances_agent_location_and_emits_events() -> None:
 
     assert snapshot.time == 2
     assert environment.world.get_agent_location(agent_id) == LocationRef.facility(
-        "classroom-a"
+        "workplace-a"
     )
     assert environment.movement_kernel.active_count == 0
 
@@ -179,11 +179,11 @@ def test_movement_kernel_advances_agent_location_and_emits_events() -> None:
 
 def test_observation_service_returns_controlled_agent_view() -> None:
     environment = EnvironmentBuilder().build(build_environment_scenario())
-    agent_id = EntityId("student-1")
+    agent_id = EntityId("worker-1")
     simulation = Simulation(seed=3)
     simulation.add_initializer(environment.create_initializer())
     simulation.initialize()
-    environment.world.set_agent_location(agent_id, LocationRef.node("gate"))
+    environment.world.set_agent_location(agent_id, LocationRef.node("home"))
 
     observation = environment.observe(
         ObservationRequest(agent_id=agent_id, max_facilities=1),
@@ -191,7 +191,7 @@ def test_observation_service_returns_controlled_agent_view() -> None:
     )
 
     assert observation.agent_id == agent_id
-    assert observation.location == LocationRef.node("gate")
+    assert observation.location == LocationRef.node("home")
     assert observation.available_modes == ("walk",)
     assert [facility.facility_id for facility in observation.nearby_facilities] == [
         "library"

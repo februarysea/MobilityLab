@@ -4,6 +4,9 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Reoriented the initial project testbeds from campus-specific scenarios to
+  public U.S. data ABM and mobility experiments, with an ADR documenting the
+  pivot.
 - Added a services MVP with provider-neutral LLM request/response contracts,
   prompt rendering, deterministic LLM test client, LLM cache/retry wrappers,
   routing cache wrapper, and a thin service bundle.

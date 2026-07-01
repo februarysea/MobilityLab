@@ -43,7 +43,7 @@ def build_prepared_scenario() -> PreparedScenario:
         ),
     )
     spec = ScenarioSpec(
-        scenario_id="campus_normal_day",
+        scenario_id="toy_commute_day",
         version="2026.06",
         data_sources=(
             DataSource(
@@ -52,25 +52,25 @@ def build_prepared_scenario() -> PreparedScenario:
                 path=Path("population.csv"),
             ),
         ),
-        initial_assumptions={"day_type": "class_day"},
+        initial_assumptions={"day_type": "commute_day"},
     ).with_variant(variant)
 
     population = PopulationSpec(
         agents=(
             AgentSpec(
-                agent_id="student-1",
-                agent_type="student",
-                profile={"role": "student"},
+                agent_id="worker-1",
+                agent_type="worker",
+                profile={"role": "worker"},
                 plans=(
                     PlanSpec(
                         plan_id="weekday",
                         activities=(
                             ActivitySpec(
-                                activity_id="class-1",
-                                activity_type="class",
+                                activity_id="work-1",
+                                activity_type="work",
                                 start_time=8 * 3600,
                                 end_time=9 * 3600,
-                                location_id="classroom-a",
+                                location_id="workplace-a",
                             ),
                         ),
                     ),
@@ -80,25 +80,25 @@ def build_prepared_scenario() -> PreparedScenario:
     )
     network = NetworkSpec(
         nodes=(
-            NetworkNodeSpec(node_id="gate"),
-            NetworkNodeSpec(node_id="classroom-a"),
+            NetworkNodeSpec(node_id="home"),
+            NetworkNodeSpec(node_id="workplace-a"),
         ),
         links=(
             NetworkLinkSpec(
                 link_id="walk-1",
-                from_node_id="gate",
-                to_node_id="classroom-a",
+                from_node_id="home",
+                to_node_id="workplace-a",
                 length_meters=300.0,
                 allowed_modes=("walk",),
             ),
         ),
-        coordinate_system="local-campus",
+        coordinate_system="local-planar",
     )
     facilities = FacilitiesSpec(
         facilities=(
             FacilitySpec(
-                facility_id="classroom-a",
-                facility_type="classroom",
+                facility_id="workplace-a",
+                facility_type="workplace",
                 capacity=80,
             ),
         ),
@@ -127,15 +127,17 @@ def build_prepared_scenario() -> PreparedScenario:
 
 def test_scenario_config_resolves_input_paths() -> None:
     config = ScenarioConfig(
-        data_root=Path("data/campus"),
+        data_root=Path("data/us_public"),
         input_paths={
             "population": Path("population.csv"),
             "network": Path("/tmp/network.json"),
         },
-        loader_options={"scenario_id": "campus_normal_day"},
+        loader_options={"scenario_id": "toy_commute_day"},
     )
 
-    assert config.resolve_input_path("population") == Path("data/campus/population.csv")
+    assert config.resolve_input_path("population") == Path(
+        "data/us_public/population.csv"
+    )
     assert config.resolve_input_path("network") == Path("/tmp/network.json")
 
     with pytest.raises(KeyError, match="unknown scenario input path"):
@@ -150,9 +152,9 @@ def test_prepared_scenario_initializer_installs_into_core_simulation() -> None:
     initialized = simulation.initialize()
 
     assert initialized.pending_tasks == 1
-    assert initialized.entities["scenario:campus_normal_day"]["population_size"] == 1
-    assert initialized.entities["scenario:campus_normal_day"]["network_nodes"] == 2
-    assert initialized.entities["scenario:campus_normal_day"]["facility_count"] == 1
+    assert initialized.entities["scenario:toy_commute_day"]["population_size"] == 1
+    assert initialized.entities["scenario:toy_commute_day"]["network_nodes"] == 2
+    assert initialized.entities["scenario:toy_commute_day"]["facility_count"] == 1
     assert initialized.entities["scenario-loader:marker"]["ready"] is True
 
     completed = simulation.run()
@@ -171,29 +173,29 @@ def test_prepared_scenario_initializer_installs_into_core_simulation() -> None:
 
 def test_in_memory_loader_applies_variant_to_baseline_scenario() -> None:
     baseline_spec = ScenarioSpec(
-        scenario_id="campus_normal_day",
+        scenario_id="toy_commute_day",
         version="2026.06",
     )
     baseline = PreparedScenario(spec=baseline_spec)
     loader = InMemoryScenarioLoader(baseline)
     variant = ScenarioVariantSpec(
-        variant_id="gate_closure",
+        variant_id="road_closure",
         scheduled_events=(
             ScheduledScenarioEvent(
                 time=8 * 3600,
                 topic="environment.closure.started",
-                payload={"target": "gate:east"},
+                payload={"target": "link:home-work"},
             ),
         ),
     )
 
     prepared = loader.load(
-        ScenarioConfig(loader_options={"scenario_id": "campus_normal_day"}),
+        ScenarioConfig(loader_options={"scenario_id": "toy_commute_day"}),
         variant=variant,
     )
 
-    assert prepared.scenario_id == "campus_normal_day"
-    assert prepared.variant_id == "gate_closure"
+    assert prepared.scenario_id == "toy_commute_day"
+    assert prepared.variant_id == "road_closure"
     assert prepared.variant.scheduled_events[0].topic == "environment.closure.started"
 
 
@@ -201,8 +203,8 @@ def test_scenario_specs_validate_duplicates_and_network_endpoints() -> None:
     with pytest.raises(ScenarioValidationError, match="agents contains duplicate"):
         PopulationSpec(
             agents=(
-                AgentSpec(agent_id="student-1"),
-                AgentSpec(agent_id="student-1"),
+                AgentSpec(agent_id="worker-1"),
+                AgentSpec(agent_id="worker-1"),
             ),
         )
 

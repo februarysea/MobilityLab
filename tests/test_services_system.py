@@ -44,31 +44,31 @@ def build_services_scenario() -> PreparedScenario:
         ),
         network=NetworkSpec(
             nodes=(
-                NetworkNodeSpec(node_id="gate"),
-                NetworkNodeSpec(node_id="quad"),
-                NetworkNodeSpec(node_id="classroom"),
+                NetworkNodeSpec(node_id="home"),
+                NetworkNodeSpec(node_id="main"),
+                NetworkNodeSpec(node_id="workplace"),
             ),
             links=(
                 NetworkLinkSpec(
-                    link_id="gate-quad",
-                    from_node_id="gate",
-                    to_node_id="quad",
+                    link_id="home-main",
+                    from_node_id="home",
+                    to_node_id="main",
                     length_meters=1.4,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
                 ),
                 NetworkLinkSpec(
-                    link_id="quad-classroom",
-                    from_node_id="quad",
-                    to_node_id="classroom",
+                    link_id="main-work",
+                    from_node_id="main",
+                    to_node_id="workplace",
                     length_meters=1.4,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
                 ),
                 NetworkLinkSpec(
-                    link_id="gate-classroom",
-                    from_node_id="gate",
-                    to_node_id="classroom",
+                    link_id="home-work",
+                    from_node_id="home",
+                    to_node_id="workplace",
                     length_meters=10.0,
                     allowed_modes=("walk",),
                 ),
@@ -77,9 +77,9 @@ def build_services_scenario() -> PreparedScenario:
         facilities=FacilitiesSpec(
             facilities=(
                 FacilitySpec(
-                    facility_id="classroom-a",
-                    facility_type="classroom",
-                    location_id="classroom",
+                    facility_id="workplace-a",
+                    facility_type="workplace",
+                    location_id="workplace",
                 ),
             ),
         ),
@@ -96,7 +96,7 @@ def test_prompt_renderer_and_deterministic_llm_client_are_provider_neutral() -> 
         text="Agent {agent_id} chooses from {modes}.",
     )
     renderer = PromptRenderer((template,))
-    message = renderer.render("mode_choice", {"agent_id": "student-1"})
+    message = renderer.render("mode_choice", {"agent_id": "worker-1"})
     request = LLMRequest(
         model="deterministic",
         prompt_version=template.prompt_version,
@@ -107,7 +107,7 @@ def test_prompt_renderer_and_deterministic_llm_client_are_provider_neutral() -> 
         request
     )
 
-    assert message.content == "Agent student-1 chooses from {modes}."
+    assert message.content == "Agent worker-1 chooses from {modes}."
     assert response.model == "deterministic"
     assert response.content == '{"decision":"wait"}'
     assert response.raw_response["provider"] == "deterministic"
@@ -138,20 +138,20 @@ def test_cached_routing_service_wraps_environment_routing_contract() -> None:
     environment = EnvironmentBuilder().build(build_services_scenario())
     cached_router = CachedRoutingService(SimpleNetworkRouter())
     request = RouteRequest(
-        origin=LocationRef.node("gate"),
-        destination=LocationRef.facility("classroom-a"),
+        origin=LocationRef.node("home"),
+        destination=LocationRef.facility("workplace-a"),
         mode="walk",
         departure_time=0,
     )
 
     first = cached_router.route(request, environment.world)
     second = cached_router.route(request, environment.world)
-    environment.world.close_link("quad-classroom")
+    environment.world.close_link("main-work")
     rerouted = cached_router.route(request, environment.world)
 
     assert first is second
     assert isinstance(rerouted, Route)
-    assert [leg.link_id for leg in rerouted.legs] == ["gate-classroom"]
+    assert [leg.link_id for leg in rerouted.legs] == ["home-work"]
     assert cached_router.size == 2
 
 

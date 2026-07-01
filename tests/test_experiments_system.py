@@ -41,16 +41,16 @@ def build_experiment_scenario() -> PreparedScenario:
         population=PopulationSpec(
             agents=(
                 AgentSpec(
-                    agent_id="student-1",
-                    agent_type="student",
+                    agent_id="worker-1",
+                    agent_type="worker",
                     profile={
-                        "role": "student",
+                        "role": "worker",
                         "mobility_access": ["walk"],
                     },
                     initial_state={
                         "location": {
                             "kind": "node",
-                            "id": "gate",
+                            "id": "home",
                         },
                     },
                     plans=(
@@ -58,11 +58,11 @@ def build_experiment_scenario() -> PreparedScenario:
                             plan_id="morning",
                             activities=(
                                 ActivitySpec(
-                                    activity_id="class-1",
-                                    activity_type="class",
+                                    activity_id="work-1",
+                                    activity_type="work",
                                     start_time=5,
                                     end_time=8,
-                                    location_id="classroom-a",
+                                    location_id="workplace-a",
                                 ),
                             ),
                         ),
@@ -72,14 +72,14 @@ def build_experiment_scenario() -> PreparedScenario:
         ),
         network=NetworkSpec(
             nodes=(
-                NetworkNodeSpec(node_id="gate", x=0.0, y=0.0),
-                NetworkNodeSpec(node_id="classroom", x=2.0, y=0.0),
+                NetworkNodeSpec(node_id="home", x=0.0, y=0.0),
+                NetworkNodeSpec(node_id="workplace", x=2.0, y=0.0),
             ),
             links=(
                 NetworkLinkSpec(
-                    link_id="gate-classroom",
-                    from_node_id="gate",
-                    to_node_id="classroom",
+                    link_id="home-work",
+                    from_node_id="home",
+                    to_node_id="workplace",
                     length_meters=2.8,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
@@ -89,9 +89,9 @@ def build_experiment_scenario() -> PreparedScenario:
         facilities=FacilitiesSpec(
             facilities=(
                 FacilitySpec(
-                    facility_id="classroom-a",
-                    facility_type="classroom",
-                    location_id="classroom",
+                    facility_id="workplace-a",
+                    facility_type="workplace",
+                    location_id="workplace",
                 ),
             ),
         ),

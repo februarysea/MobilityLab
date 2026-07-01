@@ -44,20 +44,20 @@ def build_visualization_scenario() -> PreparedScenario:
         population=PopulationSpec(
             agents=(
                 AgentSpec(
-                    agent_id="student-1",
-                    agent_type="student",
-                    profile={"role": "student", "mobility_access": ["walk"]},
-                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                    agent_id="worker-1",
+                    agent_type="worker",
+                    profile={"role": "worker", "mobility_access": ["walk"]},
+                    initial_state={"location": {"kind": "node", "id": "home"}},
                     plans=(
                         PlanSpec(
                             plan_id="morning",
                             activities=(
                                 ActivitySpec(
-                                    activity_id="class-1",
-                                    activity_type="class",
+                                    activity_id="work-1",
+                                    activity_type="work",
                                     start_time=5,
                                     end_time=8,
-                                    location_id="classroom-a",
+                                    location_id="workplace-a",
                                 ),
                             ),
                         ),
@@ -67,14 +67,14 @@ def build_visualization_scenario() -> PreparedScenario:
         ),
         network=NetworkSpec(
             nodes=(
-                NetworkNodeSpec(node_id="gate", x=0.0, y=0.0),
-                NetworkNodeSpec(node_id="classroom", x=2.0, y=0.0),
+                NetworkNodeSpec(node_id="home", x=0.0, y=0.0),
+                NetworkNodeSpec(node_id="workplace", x=2.0, y=0.0),
             ),
             links=(
                 NetworkLinkSpec(
-                    link_id="gate-classroom",
-                    from_node_id="gate",
-                    to_node_id="classroom",
+                    link_id="home-work",
+                    from_node_id="home",
+                    to_node_id="workplace",
                     length_meters=2.8,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
@@ -84,9 +84,9 @@ def build_visualization_scenario() -> PreparedScenario:
         facilities=FacilitiesSpec(
             facilities=(
                 FacilitySpec(
-                    facility_id="classroom-a",
-                    facility_type="classroom",
-                    location_id="classroom",
+                    facility_id="workplace-a",
+                    facility_type="workplace",
+                    location_id="workplace",
                 ),
             ),
         ),
@@ -148,7 +148,7 @@ def test_visualization_exporter_writes_manifest_and_datasets(
     facilities = json.loads(
         (export.datasets_dir / "facilities.geojson").read_text(encoding="utf-8")
     )
-    assert facilities["features"][0]["properties"]["facility_id"] == "classroom-a"
+    assert facilities["features"][0]["properties"]["facility_id"] == "workplace-a"
 
 
 def test_visualization_readers_support_replay_and_trace_queries(
@@ -192,7 +192,7 @@ def test_visualization_readers_support_replay_and_trace_queries(
 
     trace_index = TraceEventIndex(reader.read_trace_events())
     movement_events = trace_index.query(
-        TraceQuery(topic="movement.started", agent_id="student-1")
+        TraceQuery(topic="movement.started", agent_id="worker-1")
     )
     assert len(movement_events) == 1
     assert "movement.started" in trace_index.topics()

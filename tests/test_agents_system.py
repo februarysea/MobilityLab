@@ -44,16 +44,16 @@ def build_agent_scenario() -> PreparedScenario:
         population=PopulationSpec(
             agents=(
                 AgentSpec(
-                    agent_id="student-1",
-                    agent_type="student",
+                    agent_id="worker-1",
+                    agent_type="worker",
                     profile={
-                        "role": "student",
+                        "role": "worker",
                         "mobility_access": ["walk"],
                     },
                     initial_state={
                         "location": {
                             "kind": "node",
-                            "id": "gate",
+                            "id": "home",
                         },
                     },
                     plans=(
@@ -61,11 +61,11 @@ def build_agent_scenario() -> PreparedScenario:
                             plan_id="morning",
                             activities=(
                                 ActivitySpec(
-                                    activity_id="class-1",
-                                    activity_type="class",
+                                    activity_id="work-1",
+                                    activity_type="work",
                                     start_time=5,
                                     end_time=8,
-                                    location_id="classroom-a",
+                                    location_id="workplace-a",
                                 ),
                             ),
                         ),
@@ -75,14 +75,14 @@ def build_agent_scenario() -> PreparedScenario:
         ),
         network=NetworkSpec(
             nodes=(
-                NetworkNodeSpec(node_id="gate", x=0.0, y=0.0),
-                NetworkNodeSpec(node_id="classroom", x=2.0, y=0.0),
+                NetworkNodeSpec(node_id="home", x=0.0, y=0.0),
+                NetworkNodeSpec(node_id="workplace", x=2.0, y=0.0),
             ),
             links=(
                 NetworkLinkSpec(
-                    link_id="gate-classroom",
-                    from_node_id="gate",
-                    to_node_id="classroom",
+                    link_id="home-work",
+                    from_node_id="home",
+                    to_node_id="workplace",
                     length_meters=2.8,
                     allowed_modes=("walk",),
                     attributes={"bidirectional": True},
@@ -92,9 +92,9 @@ def build_agent_scenario() -> PreparedScenario:
         facilities=FacilitiesSpec(
             facilities=(
                 FacilitySpec(
-                    facility_id="classroom-a",
-                    facility_type="classroom",
-                    location_id="classroom",
+                    facility_id="workplace-a",
+                    facility_type="workplace",
+                    location_id="workplace",
                 ),
             ),
         ),
@@ -114,10 +114,10 @@ def test_agent_system_runs_plan_driven_agent_through_environment() -> None:
 
     snapshot = simulation.run()
 
-    agent_id = EntityId("student-1")
+    agent_id = EntityId("worker-1")
     assert snapshot.time == 8
     assert environment.world.get_agent_location(agent_id) == LocationRef.facility(
-        "classroom-a"
+        "workplace-a"
     )
     agent = agent_system.agents.get(agent_id)
     assert agent.state.lifecycle_status is AgentLifecycleStatus.COMPLETED
@@ -126,10 +126,10 @@ def test_agent_system_runs_plan_driven_agent_through_environment() -> None:
     agent_system_state = snapshot.entities["agents"]
     agents_state = agent_system_state["agents"]
     assert isinstance(agents_state, dict)
-    student_state = agents_state["student-1"]
-    assert isinstance(student_state, dict)
-    assert student_state["behavior_id"] == "rule_based"
-    assert student_state["cognition_state"] is None
+    worker_state = agents_state["worker-1"]
+    assert isinstance(worker_state, dict)
+    assert worker_state["behavior_id"] == "rule_based"
+    assert worker_state["cognition_state"] is None
 
     topics = [str(record["topic"]) for record in snapshot.event_trace]
     assert "agent.decision" in topics
@@ -195,16 +195,16 @@ def test_agent_system_batches_same_time_activations_deterministically() -> None:
         population=PopulationSpec(
             agents=(
                 AgentSpec(
-                    agent_id="student-b",
-                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                    agent_id="worker-b",
+                    initial_state={"location": {"kind": "node", "id": "home"}},
                 ),
                 AgentSpec(
-                    agent_id="student-a",
-                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                    agent_id="worker-a",
+                    initial_state={"location": {"kind": "node", "id": "home"}},
                 ),
             ),
         ),
-        network=NetworkSpec(nodes=(NetworkNodeSpec(node_id="gate"),)),
+        network=NetworkSpec(nodes=(NetworkNodeSpec(node_id="home"),)),
     )
     executor = RecordingDecisionExecutor()
     environment = EnvironmentBuilder().build(scenario)
@@ -218,7 +218,7 @@ def test_agent_system_batches_same_time_activations_deterministically() -> None:
 
     snapshot = simulation.run()
 
-    assert executor.batches == [("student-a", "student-b")]
+    assert executor.batches == [("worker-a", "worker-b")]
     batch_started = [
         record
         for record in snapshot.event_trace
@@ -226,11 +226,11 @@ def test_agent_system_batches_same_time_activations_deterministically() -> None:
     ]
     assert len(batch_started) == 1
     assert cast(State, batch_started[0]["payload"])["agent_ids"] == [
-        "student-a",
-        "student-b",
+        "worker-a",
+        "worker-b",
     ]
-    assert agent_system.agents.get(EntityId("student-a")).state.last_decision_time == 0
-    assert agent_system.agents.get(EntityId("student-b")).state.last_decision_time == 0
+    assert agent_system.agents.get(EntityId("worker-a")).state.last_decision_time == 0
+    assert agent_system.agents.get(EntityId("worker-b")).state.last_decision_time == 0
 
 
 def test_decision_context_uses_agent_state_copy() -> None:
@@ -242,13 +242,13 @@ def test_decision_context_uses_agent_state_copy() -> None:
         population=PopulationSpec(
             agents=(
                 AgentSpec(
-                    agent_id="student-1",
-                    initial_state={"location": {"kind": "node", "id": "gate"}},
+                    agent_id="worker-1",
+                    initial_state={"location": {"kind": "node", "id": "home"}},
                     attributes={"behavior_id": "mutating"},
                 ),
             ),
         ),
-        network=NetworkSpec(nodes=(NetworkNodeSpec(node_id="gate"),)),
+        network=NetworkSpec(nodes=(NetworkNodeSpec(node_id="home"),)),
     )
     environment = EnvironmentBuilder().build(scenario)
     agent_system = AgentSystemBuilder().build(
@@ -262,7 +262,7 @@ def test_decision_context_uses_agent_state_copy() -> None:
 
     simulation.run()
 
-    agent = agent_system.agents.get(EntityId("student-1"))
+    agent = agent_system.agents.get(EntityId("worker-1"))
     assert agent.state.current_plan_element_index == 0
     assert agent.state.last_decision_time == 0
 

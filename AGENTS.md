@@ -2,13 +2,12 @@
 
 ## Project Scope
 
-CampusSociety is a simulation framework for LLM-driven and traditional
-agent-based mobility simulation.
+CampusSociety is a simulation framework for LLM-driven, traditional, and
+hybrid agent-based mobility simulation.
 
-The first testbed is campus-scale. The architecture remains city-scale
-compatible from the start.
-
-The campus implementation is the first scenario/adapter.
+The first testbeds use openly available U.S. public datasets for classic ABM
+and mobility experiments. The architecture remains compatible with larger
+regional and city-scale scenarios from the start.
 
 ## Architecture Principles
 
@@ -53,8 +52,8 @@ Core concepts:
 
 Rules:
 
-- `core/` contains no campus-specific concepts.
-- `core/` contains no city-specific concepts.
+- `core/` contains no scenario-specific concepts.
+- `core/` contains no geography-specific concepts.
 - `core/` contains no LLM provider calls.
 - `core/` exposes stable contracts for agents, environment, scenarios, and
   experiments.
@@ -97,8 +96,8 @@ Purpose: external world, mobility supply, and observable context.
 Responsibilities:
 
 - spatial network: walking, cycling, vehicle, and future multimodal networks
-- places and facilities: buildings, classrooms, dorms, canteens, gates,
-  stations, parking areas
+- places and facilities: homes, workplaces, schools, shops, stations, parking
+  areas, and public facilities
 - mobility supply: buses, shared bikes, parking, road capacity, service
   frequency
 - dynamic environment: weather, congestion, closures, incidents, facility
@@ -128,33 +127,31 @@ Responsibilities:
 - define baseline policies and constraints
 - define scenario variants
 
-Campus scenario examples:
+Initial public-data scenario examples:
 
-- campus map
-- building and facility inventory
-- pedestrian and cycling network
-- class schedules
-- dormitory distribution
-- canteen demand
-- campus bus stops and timetable
-- weather assumptions
-- temporary closures or interventions
+- Census TIGER/Line geography
+- ACS or ACS PUMS demographic inputs
+- LEHD/LODES origin-destination flows
+- NHTS travel behavior priors
+- GTFS transit feeds
+- EPA Smart Location Database indicators
+- OSM or other routable network inputs when appropriate
 
-Future city-scale scenario examples:
+Classic ABM experiment examples:
 
-- OSM network
-- GTFS transit feed
-- OD demand
-- synthetic population
-- POI and land-use data
-- pricing and policy data
+- Schelling-style residential sorting
+- commuting flow and departure-time simulation
+- activity schedule simulation
+- mode-choice baseline comparison
+- accessibility or transit service interventions
+- road, facility, or service disruption scenarios
 
 Rules:
 
 - Scenario defines what to simulate.
 - Scenario does not own experiment metrics.
 - Scenario does not decide run counts.
-- Campus logic lives in campus scenario/adapters.
+- Dataset-specific and domain-specific logic lives in scenario adapters.
 
 ### 5. Experiment & Data Collection System
 
@@ -204,7 +201,7 @@ Responsibilities:
 
 - live simulation views
 - replay views
-- campus and future city map views
+- regional, neighborhood, and network map views
 - agent trajectory visualization
 - network and facility overlays
 - congestion, queue, and crowding heatmaps
@@ -369,43 +366,57 @@ campussociety/
     export/
 
   adapters/
-    campus/
-      scenario.py
-      loaders.py
-      network.py
-      schedules.py
-      facilities.py
+    us/
+      README.md
 
-    city/
+    census/
+      README.md
+
+    lodes/
+      README.md
+
+    nhts/
+      README.md
+
+    gtfs/
+      README.md
+
+    epa/
       README.md
 ```
 
-## Campus Testbed Scope
+## Initial Public-data ABM Testbed Scope
 
-Initial campus entities:
+Initial public data inputs:
 
-- students
-- faculty or staff
-- visitors
-- dorms
-- classrooms
-- canteens
-- library
-- campus gates
-- walking paths
-- cycling paths
-- shared bike stations
-- campus bus stops
+- Census TIGER/Line boundaries and roads
+- ACS or ACS PUMS demographic records
+- LEHD/LODES home-work OD flows
+- NHTS travel behavior distributions
+- GTFS transit service feeds
+- EPA Smart Location Database indicators
+- optional OSM-derived routable networks
 
-Initial scenarios:
+Initial simulated entities:
 
-- normal class day
-- rainy day
-- road or gate closure
-- bus frequency adjustment
-- shared bike station intervention
+- synthetic persons or households
+- homes and residential zones
+- workplaces and employment zones
+- facilities and activity locations
+- road, walking, cycling, and transit network elements
+- transit stops and services
+- zones, tracts, block groups, or other public-data geographies
 
-Initial policies:
+Initial experiments:
+
+- Schelling-style residential sorting
+- LODES-informed commuting simulation
+- NHTS-informed mode and departure-time choice
+- activity schedule simulation
+- transit accessibility or service-frequency interventions
+- road closure, facility disruption, or pricing interventions
+
+Initial policies and behavior models:
 
 - rule-based baseline
 - simple discrete-choice baseline
@@ -462,13 +473,15 @@ Framework-level names:
 - `Observation`
 - `Event`
 
-Campus adapter/data names:
+Public-data and scenario adapter names:
 
-- `Dorm`
-- `Classroom`
-- `Canteen`
-- `CampusBus`
-- `CampusGate`
+- `CensusTract`
+- `BlockGroup`
+- `ODFlow`
+- `SyntheticPerson`
+- `Home`
+- `Workplace`
+- `TransitStop`
 
 ## Project Records
 
