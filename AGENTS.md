@@ -512,6 +512,124 @@ Rules:
 - Routing, network loading, queues, transit operations, and traffic assignment
   stay outside agent behavior models.
 
+## Example-Driven Development
+
+Examples serve two purposes:
+
+- user-facing reference implementations for learning MobilityLab
+- development drivers for incrementally improving the MVP framework
+
+Example development loop:
+
+1. Propose a concrete example idea.
+2. Define the user value and success criteria.
+3. Analyze framework gaps for the example.
+4. Add only the smallest necessary framework capabilities.
+5. Implement the example using public framework APIs.
+6. Add tests, README instructions, and a runnable entry point.
+7. Record which framework layers the example improved.
+
+Rules:
+
+- Do not treat examples as throwaway scripts.
+- Do not hide reusable framework logic inside an example.
+- Keep example-specific scenario construction and display code in the example
+  directory.
+- Move reusable concepts into the appropriate framework layer: scenario,
+  environment, agents, experiments, visualization, services, or adapters.
+- Examples should be deterministic and should document expected outputs.
+- Each example should have a clear command for running it from the repository
+  root.
+- Tests should cover reusable framework behavior; examples should remain small
+  enough to run as smoke or integration checks when practical.
+- If an example changes long-term architecture, data contracts, or experiment
+  methodology, create or update an ADR.
+- Add user-visible example additions and framework capabilities to
+  `CHANGELOG.md` under `## Unreleased`.
+
+Recommended example structure:
+
+```text
+examples/
+  README.md
+
+  basic/
+    minimal_commute/
+      README.md
+      SPEC.md
+      run.py
+
+  traffic_assignment/
+    pigou_network/
+      README.md
+      SPEC.md
+      run.py
+
+    braess_network/
+      README.md
+      SPEC.md
+      run.py
+
+    nguyen_dupuis_network/
+      README.md
+      SPEC.md
+      run.py
+
+    sioux_falls_bpr/
+      README.md
+      SPEC.md
+      run.py
+
+  dynamic_traffic/
+    vickrey_bottleneck/
+      README.md
+      SPEC.md
+      run.py
+
+  public_data/
+    lodes_commute/
+      README.md
+      SPEC.md
+      run.py
+
+  llm_behavior/
+    llm_mode_choice/
+      README.md
+      SPEC.md
+      run.py
+```
+
+Example records:
+
+- `examples/README.md`: learning path and overview of available examples.
+- Example `README.md`: user-facing tutorial, run command, expected output, and
+  interpretation.
+- Example `SPEC.md`: development-facing contract for user value, framework
+  value, model definition, expected outputs, success criteria, framework gaps,
+  implementation notes, and follow-ups.
+
+Initial example progression:
+
+1. `basic/minimal_commute`: smallest complete network-route mobility simulation
+   using scenario, environment, agents, experiment runner, traces, metrics, and
+   replay artifacts.
+2. `traffic_assignment/pigou_network`: first static traffic-assignment example
+   for OD demand, route choice, flow-dependent link costs, assignment results,
+   and traffic metrics.
+3. `traffic_assignment/braess_network`: network intervention and comparison
+   example using scenario variants and assignment-based metrics.
+4. `dynamic_traffic/vickrey_bottleneck`: dynamic capacity, queueing,
+   departure-time choice, and schedule-delay example.
+5. `traffic_assignment/nguyen_dupuis_network` or
+   `traffic_assignment/sioux_falls_bpr`: standard assignment benchmarks with OD
+   matrices, BPR costs, convergence metrics, and reproducible benchmark
+   outputs.
+6. `public_data/lodes_commute`: first public U.S. data example for OD flows,
+   zones, connectors, and scenario adapters.
+7. `llm_behavior/llm_mode_choice`: LLM-backed behavior example with structured
+   decisions, provider-neutral service contracts, cache records, and decision
+   traces.
+
 ## Reproducibility Requirements
 
 Every run records:
@@ -585,6 +703,9 @@ Files:
 - `CHANGELOG.md`: chronological summary of user-visible or architecture-level
   changes
 - `docs/decisions/`: Architecture Decision Records
+- `examples/README.md`: learning path for user-facing examples
+- `examples/**/SPEC.md`: development-facing contracts for example-driven MVP
+  iteration
 
 Changelog rules:
 
