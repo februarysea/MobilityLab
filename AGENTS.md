@@ -634,6 +634,19 @@ Rules:
 - User-visible example additions and framework capabilities are recorded in
   `CHANGELOG.md` under `## Unreleased`.
 
+Example issue workflow:
+
+- Example Agent sessions use `.agents/example-agent.md`.
+- Framework Agent sessions use `.agents/framework-agent.md`.
+- Example Agent sessions run examples and write structured reports under
+  `docs/example-reports/`.
+- Framework Agent sessions read example reports, reproduce open issues, fix the
+  smallest correct layer, add tests, and update the report status.
+- Reports are development-facing handoff documents; user-facing tutorials stay
+  in example `README.md` files.
+- Each report issue records command, commit, expected behavior, actual behavior,
+  suspected layer, status, and verification.
+
 Recommended example structure:
 
 ```text
@@ -705,6 +718,15 @@ Example records:
 - Example `scenario.py`: scenario construction through public framework
   contracts.
 - Example `run.py`: runnable entry point and artifact export flow.
+
+- `.agents/example-agent.md`: role contract for sessions that run examples and
+  report issues without modifying framework code by default.
+- `.agents/framework-agent.md`: role contract for sessions that fix issues from
+  example reports.
+- `docs/example-reports/README.md`: report workflow, naming, statuses, and
+  handoff rules.
+- `docs/example-reports/TEMPLATE.md`: required report structure for example run
+  issues.
 
 Initial example progression:
 
@@ -808,6 +830,8 @@ Files:
 - `CHANGELOG.md`: chronological summary of user-visible or architecture-level
   changes
 - `docs/decisions/`: Architecture Decision Records
+- `.agents/`: session role contracts for focused agent workflows
+- `docs/example-reports/`: development-facing reports from example runs
 - `examples/README.md`: learning path for user-facing examples
 - `examples/**/SPEC.md`: development-facing contracts for example-driven MVP
   iteration
