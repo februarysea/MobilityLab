@@ -634,6 +634,20 @@ Rules:
 - User-visible example additions and framework capabilities are recorded in
   `CHANGELOG.md` under `## Unreleased`.
 
+Example run reports:
+
+- Use `docs/example-reports/` for development-facing reports produced while
+  running examples.
+- Reports record reproducible issues, observed behavior, and framework gaps.
+- Reports are handoff documents for later framework fixes; user-facing tutorial
+  content stays in example `README.md` files.
+- Name reports after the example path, replacing `/` with `-`, for example
+  `examples/basic/minimal_commute` becomes
+  `docs/example-reports/basic-minimal-commute.md`.
+- Each reported issue records command, commit, expected behavior, actual
+  behavior, suspected layer, status, and verification.
+- Use `docs/example-reports/TEMPLATE.md` for new reports.
+
 Recommended example structure:
 
 ```text
@@ -705,6 +719,10 @@ Example records:
 - Example `scenario.py`: scenario construction through public framework
   contracts.
 - Example `run.py`: runnable entry point and artifact export flow.
+- `docs/example-reports/README.md`: report workflow, naming, statuses, and
+  handoff rules.
+- `docs/example-reports/TEMPLATE.md`: required structure for example run
+  reports.
 
 Initial example progression:
 
@@ -807,7 +825,9 @@ Files:
   collaboration rules
 - `CHANGELOG.md`: chronological summary of user-visible or architecture-level
   changes
+- `docs/README.md`: index for project record sections
 - `docs/decisions/`: Architecture Decision Records
+- `docs/example-reports/`: development-facing reports from example runs
 - `examples/README.md`: learning path for user-facing examples
 - `examples/**/SPEC.md`: development-facing contracts for example-driven MVP
   iteration
