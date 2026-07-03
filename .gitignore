@@ -27,6 +27,7 @@ env/
 # Simulation outputs and local data products
 outputs/
 runs/
+examples/**/runs/
 data/raw/
 data/interim/
 data/processed/

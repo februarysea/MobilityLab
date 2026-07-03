@@ -32,6 +32,14 @@ Install pre-commit hooks after installing dependencies:
 uv run pre-commit install
 ```
 
+## Examples
+
+Runnable reference examples live in `examples/`.
+
+```bash
+uv run python -m examples.basic.minimal_commute.run
+```
+
 ## Architecture
 
 The architecture guide lives in `AGENTS.md`. Long-lived architecture decisions

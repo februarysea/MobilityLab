@@ -274,7 +274,43 @@ Rules:
 - UI-specific models stay outside core, agent, environment, and scenario
   modules.
 
-### 7. Services / Extensions
+### 7. Configuration & User Entry System
+
+Purpose: user-authored simulation and experiment entry points.
+
+Responsibilities:
+
+- load human-authored YAML configuration files and future JSON or TOML formats
+- define configuration schema versions and user-facing aliases
+- normalize configuration documents into typed schema objects
+- validate cross-section references for agents, activities, networks,
+  facilities, modes, output, traces, metrics, and replay
+- resolve paths relative to the configuration source
+- compile configuration into `PreparedScenario`, `RunConfig`, and future
+  service wiring contracts
+- provide deterministic config-driven experiment entry points
+
+Core concepts:
+
+- `MobilityLabConfigSchema`
+- `ConfigCompiler`
+- `ConfigValidationError`
+- `ExperimentConfigBundle`
+
+Rules:
+
+- `config/` owns user-facing document formats and schema compatibility.
+- Runtime layers consume compiled typed contracts.
+- Config stays focused on parsing, validation, normalization, path resolution,
+  compilation, and provenance.
+- Scenario, environment, agent, experiment, and service layers own simulation
+  semantics.
+- Configuration schema or format changes are data-format changes for
+  `CHANGELOG.md`.
+- Compatibility-changing configuration updates use an ADR and schema version
+  policy.
+
+### 8. Services / Extensions
 
 Purpose: external capabilities and replaceable backends.
 
@@ -328,13 +364,30 @@ Agent System
 Environment System
   -> Core contracts
   -> Scenario contracts
-  -> Services for routing/data backends
+  -> Environment routing and movement contracts
 
 Visualization & Interface System
   -> Scenario metadata
   -> Environment geometry
   -> Experiment traces, metrics, and snapshots
   -> Services for storage/export backends
+
+Configuration & User Entry System
+  -> Core contracts
+  -> Scenario contracts
+  -> Experiment run contracts
+  -> Services wiring contracts when service settings are configured
+
+Examples and Apps
+  -> Configuration
+  -> Scenario
+  -> Experiment
+  -> Visualization & Interface System
+  -> Services
+
+Services
+  -> Environment routing contracts when implementing routing backends
+  -> External provider, storage, data, and export APIs
 
 Core
   -> generic runtime contracts
@@ -347,81 +400,105 @@ Rules:
 - Scenario configures Agent and Environment.
 - Experiment runs Scenario and collects data.
 - Visualization consumes scenario metadata, traces, metrics, and snapshots.
+- Configuration is an outer entry layer that compiles user documents into typed
+  scenario and experiment contracts.
+- Runtime packages consume compiled contracts and keep raw YAML or document
+  mappings at the entry boundary.
+- Routing contracts live with environment capabilities; services can implement
+  adapters or wrappers for external routing backends.
 - Services provide replaceable backends.
 
 ## Suggested Package Structure
 
 ```text
-mobilitylab/
-  core/
-    clock.py
-    scheduler.py
-    events.py
-    entities.py
-    simulation.py
-    snapshots.py
+src/
+  mobilitylab/
+    core/
+      clock.py
+      scheduler.py
+      events.py
+      entities.py
+      simulation.py
+      snapshots.py
 
-  agents/
-    profile.py
-    state.py
-    plans.py
-    decisions.py
-    context.py
-    behavior/
-    cognition/
-    runtime/
+    config/
+      __init__.py
+      errors.py
+      schema.py
+      yaml.py
+      validate.py
+      compiler.py
 
-  environment/
-    world.py
-    network.py
-    facilities.py
-    movement.py
-    routing.py
-    spatial.py
-    spatial_layers.py
-    observation.py
+    agents/
+      profile.py
+      state.py
+      plans.py
+      decisions.py
+      context.py
+      behavior/
+      cognition/
+      runtime/
 
-  scenario/
-    base.py
-    config.py
-    loaders.py
-    population.py
-    spatial.py
-    world.py
-    variants.py
+    environment/
+      world.py
+      network.py
+      facilities.py
+      movement.py
+      routing.py
+      spatial.py
+      spatial_layers.py
+      observation.py
 
-  experiments/
-    artifacts.py
-    assembly.py
-    config.py
-    listeners.py
-    metrics.py
-    replay.py
-    results.py
-    runner.py
-    traces.py
+    scenario/
+      base.py
+      config.py
+      loaders.py
+      population.py
+      spatial.py
+      world.py
+      variants.py
 
-  visualization/
-    datasets.py
-    dashboards.py
-    exporters.py
-    geometry.py
-    layers.py
-    metrics.py
-    readers.py
-    replay.py
-    traces.py
+    experiments/
+      artifacts.py
+      assembly.py
+      config.py
+      listeners.py
+      metrics.py
+      replay.py
+      results.py
+      runner.py
+      traces.py
 
-  services/
-    llm/
-    routing/
-    storage/
-    data/
-    export/
+    visualization/
+      datasets.py
+      dashboards.py
+      exporters.py
+      geometry.py
+      layers.py
+      metrics.py
+      readers.py
+      replay.py
+      traces.py
 
-  adapters/
-    city/
+    services/
+      llm/
+      routing/
+      storage/
+      data/
+      export/
+
+    adapters/
+      city/
+        README.md
+
+examples/
+  README.md
+  basic/
+    minimal_commute/
       README.md
+      SPEC.md
+      scenario.py
+      run.py
 ```
 
 ## Current MVP Boundary
@@ -441,6 +518,11 @@ Implemented:
   metrics, and trace events
 - provider-neutral LLM service contracts, prompt rendering, cache/retry wrappers,
   and deterministic test clients
+- configuration layer for YAML loading, schema normalization, cross-section
+  validation, and compilation into `PreparedScenario` and `RunConfig`
+- runnable `examples/basic/minimal_commute` reference example covering the
+  minimal fixed-cost network commute stack, agent trip/activity execution,
+  metrics, traces, replay artifacts, and visualization-ready exports
 
 Roadmap capabilities:
 
@@ -478,16 +560,19 @@ Initial simulated entities:
 
 Initial benchmark progression:
 
-1. fixed-cost commute with shortest-route movement, closures, and accessibility
-   metrics
-2. OD demand and zone connector scenarios, including LODES-informed commuting
-3. Pigou, parallel-route, and Braess network examples for route choice and
-   intervention effects
-4. BPR link-performance static assignment and Sioux Falls-style benchmarks
-5. Vickrey bottleneck departure-time choice and queueing
-6. activity-based daily schedules with NHTS or ATUS priors
-7. MATSim-style scoring, replanning, and repeated iterations
-8. GTFS transit supply and service-frequency interventions
+1. implemented: `basic/minimal_commute` covers a minimal fixed-cost
+   shortest-route commute with deterministic network movement
+2. planned: closure and accessibility metrics on fixed-cost commute scenarios
+3. planned: OD demand and zone connector scenarios, including LODES-informed
+   commuting
+4. planned: Pigou, parallel-route, and Braess network examples for route choice
+   and intervention effects
+5. planned: BPR link-performance static assignment and Sioux Falls-style
+   benchmarks
+6. planned: Vickrey bottleneck departure-time choice and queueing
+7. planned: activity-based daily schedules with NHTS or ATUS priors
+8. planned: MATSim-style scoring, replanning, and repeated iterations
+9. planned: GTFS transit supply and service-frequency interventions
 
 Initial policies and behavior models:
 
@@ -531,20 +616,22 @@ Example development loop:
 
 Rules:
 
-- Do not treat examples as throwaway scripts.
-- Do not hide reusable framework logic inside an example.
-- Keep example-specific scenario construction and display code in the example
+- Examples are maintained reference projects with deterministic behavior and
+  documented expected outputs.
+- Reusable framework logic belongs in the appropriate framework layer:
+  scenario, environment, agents, experiments, visualization, services, or
+  adapters.
+- Example-specific scenario construction and display code stay in the example
   directory.
-- Move reusable concepts into the appropriate framework layer: scenario,
-  environment, agents, experiments, visualization, services, or adapters.
-- Examples should be deterministic and should document expected outputs.
-- Each example should have a clear command for running it from the repository
-  root.
-- Tests should cover reusable framework behavior; examples should remain small
-  enough to run as smoke or integration checks when practical.
-- If an example changes long-term architecture, data contracts, or experiment
-  methodology, create or update an ADR.
-- Add user-visible example additions and framework capabilities to
+- Each example has a clear command for running it from the repository root.
+- Tests cover reusable framework behavior; examples stay small enough to run as
+  smoke or integration checks when practical.
+- Tests use temporary output directories for generated run artifacts when
+  practical.
+- Generated artifacts such as `examples/**/runs/`, visualization outputs, and
+  Python caches are reproducible outputs.
+- Architecture-changing examples create or update an ADR.
+- User-visible example additions and framework capabilities are recorded in
   `CHANGELOG.md` under `## Unreleased`.
 
 Recommended example structure:
@@ -557,45 +644,53 @@ examples/
     minimal_commute/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
   traffic_assignment/
     pigou_network/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
     braess_network/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
     nguyen_dupuis_network/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
     sioux_falls_bpr/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
   dynamic_traffic/
     vickrey_bottleneck/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
   public_data/
     lodes_commute/
       README.md
       SPEC.md
+      scenario.py
       run.py
 
   llm_behavior/
     llm_mode_choice/
       README.md
       SPEC.md
+      scenario.py
       run.py
 ```
 
@@ -607,6 +702,9 @@ Example records:
 - Example `SPEC.md`: development-facing contract for user value, framework
   value, model definition, expected outputs, success criteria, framework gaps,
   implementation notes, and follow-ups.
+- Example `scenario.py`: scenario construction through public framework
+  contracts.
+- Example `run.py`: runnable entry point and artifact export flow.
 
 Initial example progression:
 
@@ -637,6 +735,10 @@ Every run records:
 - scenario id and version
 - experiment id
 - random seed
+- config schema version and config source path or digest, if launched from a
+  config file
+- normalized config validation result, if launched from a config file
+- compiled scenario and run configuration summary
 - behavior model and policy or intervention version
 - LLM model and prompt version, if used
 - LLM input summary
@@ -672,6 +774,9 @@ Framework-level names:
 - `Zone`
 - `SpatialLayer`
 - `GridLayer`
+- `ConfigSchema`
+- `ConfigCompiler`
+- `ExperimentConfigBundle`
 
 Public-data and scenario adapter names:
 
@@ -712,6 +817,7 @@ Changelog rules:
 - Add meaningful project changes under `## Unreleased`.
 - Record architecture changes, new layers, major behavior changes, new
   dependencies, data format changes, and experiment protocol changes.
+- Record configuration schema or format changes as data-format changes.
 - Keep entries concise and factual.
 - Keep single-session implementation notes out of `CHANGELOG.md`.
 
@@ -722,6 +828,8 @@ ADR rules:
 - Use sequential filenames: `0001-title.md`, `0002-title.md`.
 - Use this structure: `Status`, `Context`, `Decision`, `Consequences`.
 - Keep accepted decisions stable. Add a new ADR to supersede an old decision.
+- Use ADRs for compatibility-changing configuration schema updates and record
+  the schema version policy in the decision.
 - ADR 0009 supersedes older campus-first ADR language only for initial testbed
   scope; older ADRs remain valid for architecture boundaries until a newer ADR
   explicitly supersedes them.
