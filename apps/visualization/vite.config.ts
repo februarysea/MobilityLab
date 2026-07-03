@@ -3,19 +3,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";
 
+const RUN_ARTIFACTS_STATUS_HEADER = "X-MobilityLab-Run-Artifacts";
+
 function runArtifactsPlugin(): Plugin {
   return {
     name: "mobilitylab-run-artifacts",
     configureServer(server) {
       const configuredRunDir = process.env.MOBILITYLAB_RUN_DIR;
-      server.middlewares.use("/run-artifacts", (request, response, next) => {
-        if (!configuredRunDir) {
+      const root = configuredRunDir ? resolveRunDir(configuredRunDir) : null;
+      server.middlewares.use("/run-artifacts", (request, response, _next) => {
+        if (!root) {
           response.statusCode = 404;
+          response.setHeader(RUN_ARTIFACTS_STATUS_HEADER, "not-configured");
           response.setHeader("Content-Type", "text/plain; charset=utf-8");
           response.end("MOBILITYLAB_RUN_DIR is not set");
           return;
         }
-        const root = path.resolve(configuredRunDir);
+        response.setHeader(RUN_ARTIFACTS_STATUS_HEADER, "configured");
         let requestPath = decodeURIComponent(
           (request.url ?? "/").split("?")[0] ?? "/",
         );
@@ -33,7 +37,9 @@ function runArtifactsPlugin(): Plugin {
         }
         fs.stat(filePath, (statError, stats) => {
           if (statError || !stats.isFile()) {
-            next();
+            response.statusCode = 404;
+            response.setHeader("Content-Type", "text/plain; charset=utf-8");
+            response.end(`Run artifact not found: ${requestPath}`);
             return;
           }
           response.setHeader("Content-Type", contentType(filePath));
@@ -42,6 +48,11 @@ function runArtifactsPlugin(): Plugin {
       });
     },
   };
+}
+
+function resolveRunDir(configuredRunDir: string): string {
+  const invocationCwd = process.env.INIT_CWD ?? process.cwd();
+  return path.resolve(invocationCwd, configuredRunDir);
 }
 
 function isInside(root: string, candidate: string): boolean {

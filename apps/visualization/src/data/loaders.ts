@@ -12,6 +12,7 @@ const DEFAULT_MANIFEST_CANDIDATES = [
   "/run-artifacts/visualization_manifest.json",
   "/sample/visualization_manifest.json",
 ];
+const RUN_ARTIFACTS_STATUS_HEADER = "X-MobilityLab-Run-Artifacts";
 
 export async function loadVisualization(): Promise<LoadedVisualization> {
   const { manifest, manifestUrl } = await loadManifest();
@@ -59,7 +60,7 @@ async function loadManifest(): Promise<{
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       failures.push(`${url} (${message})`);
-      if (explicitManifest) {
+      if (explicitManifest || shouldStopManifestFallback(url, error)) {
         break;
       }
     }
@@ -70,14 +71,22 @@ async function loadManifest(): Promise<{
 
 async function loadJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
+  const runArtifactsStatus = response.headers.get(RUN_ARTIFACTS_STATUS_HEADER);
   if (!response.ok) {
-    throw new Error(`Failed to load ${url}: ${response.status}`);
+    const body = await response.text();
+    throw new DataLoadError(
+      `Failed to load ${url}: ${response.status}${body ? ` ${body}` : ""}`,
+      runArtifactsStatus,
+    );
   }
   try {
     return (await response.json()) as T;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to parse JSON from ${url}: ${message}`);
+    throw new DataLoadError(
+      `Failed to parse JSON from ${url}: ${message}`,
+      runArtifactsStatus,
+    );
   }
 }
 
@@ -112,4 +121,25 @@ function resolveDatasetUrl(
   dataset: VisualizationDataset,
 ): string {
   return new URL(dataset.path, manifestUrl).toString();
+}
+
+function shouldStopManifestFallback(url: string, error: unknown): boolean {
+  if (!(error instanceof DataLoadError) || !isRunArtifactsUrl(url)) {
+    return false;
+  }
+  return error.runArtifactsStatus === "configured";
+}
+
+function isRunArtifactsUrl(url: string): boolean {
+  return new URL(url).pathname.startsWith("/run-artifacts/");
+}
+
+class DataLoadError extends Error {
+  readonly runArtifactsStatus: string | null;
+
+  constructor(message: string, runArtifactsStatus: string | null) {
+    super(message);
+    this.name = "DataLoadError";
+    this.runArtifactsStatus = runArtifactsStatus;
+  }
 }

@@ -6,6 +6,8 @@ import type { GeoJSON } from "geojson";
 
 import type { FeatureCollection, GeoJsonFeature, ReplayFrame } from "../types";
 
+const DEFAULT_FIT_PIXELS = 320;
+
 interface DeckMapPanelProps {
   network: FeatureCollection;
   facilities: FeatureCollection;
@@ -137,7 +139,7 @@ function computeBounds(collections: FeatureCollection[]) {
   return {
     centerX: (minX + maxX) / 2,
     centerY: (minY + maxY) / 2,
-    zoom: Math.max(1, Math.min(14, Math.log2(520 / extent))),
+    zoom: Math.max(1, Math.min(14, Math.log2(DEFAULT_FIT_PIXELS / extent))),
   };
 }
 

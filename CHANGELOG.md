@@ -4,6 +4,13 @@ All notable project changes are recorded here.
 
 ## Unreleased
 
+- Fixed visualization dev server run artifact serving so relative
+  `MOBILITYLAB_RUN_DIR` values resolve from the npm invocation directory,
+  missing `/run-artifacts` files return 404 instead of the Vite HTML shell, and
+  configured run artifact failures no longer silently fall back to sample data.
+- Fixed the replay viewer dashboard layout and initial map framing so the
+  minimal commute network, facilities, metrics, events, and timeline fit in a
+  usable default desktop viewport while preserving mobile vertical layout.
 - Added a configuration layer that loads YAML user configs, normalizes them
   through schema objects, validates cross-section references, and compiles them
   into `PreparedScenario` and `RunConfig`.

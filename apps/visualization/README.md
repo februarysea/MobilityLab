@@ -25,6 +25,9 @@ MOBILITYLAB_RUN_DIR=/path/to/run npm --prefix apps/visualization run dev
 
 The viewer reads `/run-artifacts/visualization_manifest.json` when
 `MOBILITYLAB_RUN_DIR` is set. Otherwise it falls back to the bundled sample.
+Relative `MOBILITYLAB_RUN_DIR` values are resolved from the directory where the
+`npm` command is invoked, so repository-root paths work with
+`npm --prefix apps/visualization`.
 
 ## Build
 
