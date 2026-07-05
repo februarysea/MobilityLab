@@ -638,15 +638,21 @@ Example run reports:
 
 - Use `docs/example-reports/` for development-facing reports produced while
   running examples.
-- Reports record reproducible issues, observed behavior, and framework gaps.
-- Reports are handoff documents for later framework fixes; user-facing tutorial
-  content stays in example `README.md` files.
-- Name reports after the example path, replacing `/` with `-`, for example
-  `examples/basic/minimal_commute` becomes
-  `docs/example-reports/basic-minimal-commute.md`.
-- Each reported issue records command, commit, expected behavior, actual
+- Reports are issue-level handoff documents for later framework fixes;
+  user-facing tutorial content stays in example `README.md` files.
+- Use one Markdown file per distinct issue, not one combined report per
+  example.
+- Group issue reports by example slug, replacing `/` with `-`, for example
+  `examples/basic/minimal_commute` uses
+  `docs/example-reports/basic-minimal-commute/`.
+- Name issue reports with a stable issue id, for example
+  `docs/example-reports/basic-minimal-commute/EX-BASIC-MINCOMM-001.md`.
+- If one example run exposes multiple unrelated issues, create multiple issue
+  reports. If several symptoms share the same likely root cause, keep them in
+  one issue report.
+- Each issue report records command, commit, expected behavior, actual
   behavior, suspected layer, status, and verification.
-- Use `docs/example-reports/TEMPLATE.md` for new reports.
+- Use `docs/example-reports/TEMPLATE.md` for new issue reports.
 
 Recommended example structure:
 
@@ -721,8 +727,8 @@ Example records:
 - Example `run.py`: runnable entry point and artifact export flow.
 - `docs/example-reports/README.md`: report workflow, naming, statuses, and
   handoff rules.
-- `docs/example-reports/TEMPLATE.md`: required structure for example run
-  reports.
+- `docs/example-reports/TEMPLATE.md`: required structure for one issue-level
+  example report.
 
 Initial example progression:
 

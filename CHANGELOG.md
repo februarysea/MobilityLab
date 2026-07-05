@@ -14,9 +14,10 @@ All notable project changes are recorded here.
 - Added a configuration layer that loads YAML user configs, normalizes them
   through schema objects, validates cross-section references, and compiles them
   into `PreparedScenario` and `RunConfig`.
-- Added a runnable `examples/basic/minimal_commute` reference example that
-  builds a minimal commute scenario, runs the experiment stack, and exports
-  visualization-ready datasets.
+- Added a runnable `examples/basic/minimal_commute` reference example with both
+  YAML config and Python API entry points for building a minimal commute
+  scenario, running the experiment stack, and exporting visualization-ready
+  datasets.
 - Renamed the project and Python package from CampusSociety/campussociety to
   MobilityLab/mobilitylab.
 - Updated the project guide to clarify the mobility-first transport scope,

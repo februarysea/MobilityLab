@@ -1,10 +1,20 @@
-# Example Run Report: <example-name>
+# Example Issue Report: <issue-id>
 
 ## Report Metadata
 
 - Report path:
 - Example path:
+- Issue id:
 - Last updated:
+
+## Issue Summary
+
+- Status: open
+- Severity: blocking | major | minor
+- Suspected layer: core | scenario | environment | agents | experiments |
+  visualization | services | adapters | examples | docs | unknown
+- Issue type: framework bug | example bug | docs issue | missing feature |
+  environment issue | expected limitation | unknown
 
 ## Run Context
 
@@ -32,40 +42,28 @@ observable results.
 
 Describe what happened when the example was run.
 
-## Issues
+## Reproduction
 
-### EX-<AREA>-<EXAMPLE>-001: <short title>
-
-- Status: open
-- Severity: blocking | major | minor
-- Suspected layer: core | scenario | environment | agents | experiments |
-  visualization | services | adapters | examples | docs | unknown
-- Issue type: framework bug | example bug | docs issue | missing feature |
-  environment issue | expected limitation | unknown
 - Reproduction command:
 - Expected:
 - Actual:
 - Error output:
 
-#### Notes
+## Notes
 
 Add observations, stack traces, or minimal debugging notes here.
 
-#### Framework Gap
+## Framework Gap
 
 Describe the missing or broken framework capability, if any.
 
-#### Resolution Log
+## Resolution Log
 
 - Pending.
 
-#### Verification
+## Verification
 
 - Not yet verified.
-
-## Framework Gaps Summary
-
-Summarize reusable framework capabilities exposed by this example run.
 
 ## Follow-ups
 

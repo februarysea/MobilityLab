@@ -37,6 +37,7 @@ uv run pre-commit install
 Runnable reference examples live in `examples/`.
 
 ```bash
+uv run python -m examples.basic.minimal_commute.run_from_config
 uv run python -m examples.basic.minimal_commute.run
 ```
 

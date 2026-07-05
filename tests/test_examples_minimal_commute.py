@@ -3,18 +3,41 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from examples.basic.minimal_commute.run import run_minimal_commute
+from examples.basic.minimal_commute.run import MinimalCommuteResult, run_minimal_commute
+from examples.basic.minimal_commute.run_from_config import (
+    run_minimal_commute_from_config,
+)
 
 
-def test_minimal_commute_example_runs_full_experiment_stack(tmp_path: Path) -> None:
+def test_minimal_commute_python_example_runs_full_experiment_stack(
+    tmp_path: Path,
+) -> None:
     result = run_minimal_commute(output_root=tmp_path)
 
-    assert result.run.snapshot.status == "completed"
-    assert result.run.snapshot.time == 55
-    assert result.run.artifacts.run_dir == tmp_path / "minimal-commute"
-    assert result.visualization.manifest_path.exists()
+    _assert_minimal_commute_result(result, tmp_path)
 
-    metric_values = {metric.name: metric.value for metric in result.run.metrics}
+
+def test_minimal_commute_config_example_runs_full_experiment_stack(
+    tmp_path: Path,
+) -> None:
+    result = run_minimal_commute_from_config(output_root=tmp_path)
+
+    _assert_minimal_commute_result(result, tmp_path)
+
+
+def _assert_minimal_commute_result(
+    result: MinimalCommuteResult,
+    output_root: Path,
+) -> None:
+    run = result.run
+    visualization = result.visualization
+
+    assert run.snapshot.status == "completed"
+    assert run.snapshot.time == 55
+    assert run.artifacts.run_dir == output_root / "minimal-commute"
+    assert visualization.manifest_path.exists()
+
+    metric_values = {metric.name: metric.value for metric in run.metrics}
     assert metric_values["scenario.population_size"] == 2
     assert metric_values["scenario.network_nodes"] == 4
     assert metric_values["scenario.network_links"] == 3
@@ -25,7 +48,7 @@ def test_minimal_commute_example_runs_full_experiment_stack(tmp_path: Path) -> N
 
     event_topics = [
         json.loads(line)["topic"]
-        for line in result.run.artifacts.events.read_text(encoding="utf-8").splitlines()
+        for line in run.artifacts.events.read_text(encoding="utf-8").splitlines()
     ]
     assert "scenario.initialized" in event_topics
     assert "environment.initialized" in event_topics
@@ -35,5 +58,5 @@ def test_minimal_commute_example_runs_full_experiment_stack(tmp_path: Path) -> N
     assert "activity.started" in event_topics
     assert "activity.ended" in event_topics
 
-    assert (result.run.artifacts.run_dir / "datasets" / "network.geojson").exists()
-    assert (result.run.artifacts.run_dir / "datasets" / "facilities.geojson").exists()
+    assert (run.artifacts.run_dir / "datasets" / "network.geojson").exists()
+    assert (run.artifacts.run_dir / "datasets" / "facilities.geojson").exists()

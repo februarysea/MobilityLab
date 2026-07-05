@@ -10,7 +10,7 @@ from mobilitylab.experiments import (
     RunResult,
     SimulationAssembler,
 )
-from mobilitylab.scenario import InMemoryScenarioLoader
+from mobilitylab.scenario import InMemoryScenarioLoader, PreparedScenario
 from mobilitylab.visualization import VisualizationExporter, VisualizationExportResult
 
 from .scenario import build_minimal_commute_scenario
@@ -36,9 +36,6 @@ def run_minimal_commute(
     """Run the example and export visualization-ready datasets."""
 
     scenario = build_minimal_commute_scenario()
-    runner = ExperimentRunner(
-        assembler=SimulationAssembler(InMemoryScenarioLoader(scenario)),
-    )
     config = RunConfig(
         run_id=run_id,
         scenario=scenario.spec,
@@ -53,13 +50,22 @@ def run_minimal_commute(
         },
     )
 
-    run = runner.run(config)
+    return execute_minimal_commute(scenario, config)
+
+
+def execute_minimal_commute(
+    scenario: PreparedScenario,
+    run_config: RunConfig,
+) -> MinimalCommuteResult:
+    runner = ExperimentRunner(
+        assembler=SimulationAssembler(InMemoryScenarioLoader(scenario)),
+    )
+    run = runner.run(run_config)
     visualization = VisualizationExporter().export_run(run.artifacts.run_dir)
     return MinimalCommuteResult(run=run, visualization=visualization)
 
 
-def main() -> None:
-    result = run_minimal_commute()
+def print_minimal_commute_result(result: MinimalCommuteResult) -> None:
     metrics = {metric.name: metric.value for metric in result.run.metrics}
 
     print(f"Run id: {result.run.run_id}")
@@ -69,6 +75,10 @@ def main() -> None:
     print(f"Movements arrived: {metrics.get('movement.arrived.count')}")
     print(f"Run artifacts: {result.run.artifacts.run_dir}")
     print(f"Visualization manifest: {result.visualization.manifest_path}")
+
+
+def main() -> None:
+    print_minimal_commute_result(run_minimal_commute())
 
 
 if __name__ == "__main__":

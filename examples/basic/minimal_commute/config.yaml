@@ -1,0 +1,127 @@
+schema_version: mobilitylab.config.v1
+
+scenario:
+  id: minimal_commute
+  version: "2026.07"
+  metadata:
+    example: basic/minimal_commute
+    description: Two workers walk from homes to a workplace.
+
+population:
+  metadata:
+    source: hand-authored example population
+  agents:
+    - id: worker-1
+      type: worker
+      profile:
+        role: worker
+        mobility_access: [walk]
+      initial_state:
+        location:
+          kind: facility
+          id: home-north
+      plans:
+        - id: weekday-work
+          activities:
+            - id: worker-1-work
+              activity: work
+              start_time: 20
+              end_time: 50
+              location: workplace-a
+
+    - id: worker-2
+      type: worker
+      profile:
+        role: worker
+        mobility_access: [walk]
+      initial_state:
+        location:
+          kind: facility
+          id: home-south
+      plans:
+        - id: weekday-work
+          activities:
+            - id: worker-2-work
+              activity: work
+              start_time: 25
+              end_time: 55
+              location: workplace-a
+
+network:
+  coordinate_system: local-planar
+  metadata:
+    description: Toy walking network in local coordinates.
+  nodes:
+    - id: home-north-node
+      x: 0.0
+      y: 1.0
+    - id: home-south-node
+      x: 0.0
+      y: -1.0
+    - id: main-street
+      x: 1.0
+      y: 0.0
+    - id: workplace-node
+      x: 2.0
+      y: 0.0
+  links:
+    - id: north-home-to-main
+      from: home-north-node
+      to: main-street
+      length_meters: 6.0
+      modes: [walk]
+      bidirectional: true
+    - id: south-home-to-main
+      from: home-south-node
+      to: main-street
+      length_meters: 5.0
+      modes: [walk]
+      bidirectional: true
+    - id: main-to-work
+      from: main-street
+      to: workplace-node
+      length_meters: 8.0
+      modes: [walk]
+      bidirectional: true
+
+facilities:
+  items:
+    - id: home-north
+      type: home
+      location: home-north-node
+      capacity: 1
+    - id: home-south
+      type: home
+      location: home-south-node
+      capacity: 1
+    - id: workplace-a
+      type: workplace
+      location: workplace-node
+      capacity: 20
+
+mobility_supply:
+  modes:
+    - id: walk
+      type: active
+      attributes:
+        description: Fixed-speed walking mode.
+
+run:
+  id: minimal-commute
+  seed: 7
+  metadata:
+    example: basic/minimal_commute
+    purpose: minimal complete mobility simulation
+
+output:
+  output_root: runs
+  overwrite: true
+
+trace:
+  enabled: true
+
+metrics:
+  enabled: true
+
+replay:
+  enabled: true

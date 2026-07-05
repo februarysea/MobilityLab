@@ -6,11 +6,11 @@
   `docs/example-reports/basic-minimal-commute/EX-BASIC-MINCOMM-002.md`
 - Example path: `examples/basic/minimal_commute`
 - Issue id: `EX-BASIC-MINCOMM-002`
-- Last updated: 2026-07-03
+- Last updated: 2026-07-06
 
 ## Issue Summary
 
-- Status: resolved
+- Status: verified
 - Severity: major
 - Suspected layer: visualization
 - Issue type: framework bug
